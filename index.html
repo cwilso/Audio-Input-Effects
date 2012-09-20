@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+	<title>Live input effects</title>
+	<script src="js/waveshaper.js"></script>
+	<script src="js/effects.js"></script>
+
+	<!-- Visualizer stuff -->
+	<script src="js/visualizer/events.js"></script>
+
+	<!-- WebGL stuff -->
+	<script src="js/visualizer/base.js"></script>
+	<script src="js/visualizer/cameracontroller.js"></script>
+
+	<!-- TODO(kbr): remove this dependency -->
+	<script src="js/visualizer/matrix4x4.js"></script>
+
+	<!-- Visualizer GL library -->
+	<script src="js/visualizer/visualizer.js"></script>
+	<script src="js/visualizer/shader.js"></script>
+
+	<style>
+		body { font: 14pt Arial, sans-serif; background: beige; }
+		select { font: 14pt Arial, sans-serif; }
+		div#controls div { display:none; border: 1px solid gray; border-radius: 5px; padding: 10px; width: 728px;}
+		div#controls div.display { display: block; }
+		#controls { padding-top: 24px;}
+		#effectMix { padding-top: 12px;}
+	</style>
+</head>
+<body>
+	<canvas id="view1" width="750" height="200"></canvas><br>
+	<canvas id="view2" width="750" height="200"></canvas>
+	<div>
+		<input type="radio" name="radioSet" value="data" 
+			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_FREQUENCY); analyserView2.setAnalysisType(ANALYSISTYPE_FREQUENCY);">Frequency
+		<input type="radio" name="radioSet" value="data" 
+			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_SONOGRAM);">Sonogram
+		<input type="radio" name="radioSet" value="data" checked="checked" 
+			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);">3D Sonogram
+		<input type="radio" name="radioSet" value="data" 
+			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_WAVEFORM); analyserView2.setAnalysisType(ANALYSISTYPE_WAVEFORM);">Waveform
+	</div>
+	<div id="effectMix">Effect: <select id="effect" onchange="changeEffect(this.selectedIndex);">
+		<option>Delay
+		<option>Reverb
+		<option>Distortion
+		<option>Telephone
+		<option>Gain LFO
+		<option>Chorus
+		<option>Flange
+		<option>Ring mod
+<!--
+		<option>LPFilter LFO (NYI)
+		<option>Autowah (NYI)
+		<option>
+		<option>
+		<option>
+
+Stereo chorus
+Stereo ping-pong delay
+Stereo flange
+
+-->
+	</select>
+	&nbsp;&nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
+          onInput="crossfade( event.target.value );">
+    </div>
+	<div id="controls">
+		<div id="delayControls">A basic digital delay.<br>
+			Delay time: <input id="dtime" type="range" min="0.01" max="3" step="0.01" value="0.15" style="height: 20px; width: 200px" onInput="if (dtime) dtime.delayTime.value = event.target.value;"><br>
+         	Regen: <input id="dregen" type="range" min="0.0" max="1.0" step="0.01" value="0.75" style="height: 20px; width: 200px;" 
+          		onInput="if (dregen) dregen.gain.value = event.target.value;">
+		</div>
+		<div id="reverbControls">A convolution-based "hall" reverb, using a prerecorded impulse file. <!-- TODO: let user select other impulse response files, even auto-generate -->
+		</div>
+		<div id="distortionControls">A waveshaper, used to do distortion.  Note this will become more high-quality in the future, as we improve the antialiasing in waveshapers.<br>
+			Drive: <input type="range" min="0.01" max="20" step="0.01" value="5" style="height: 20px; width: 200px;" 
+          onInput="if (waveshaper) waveshaper.setDrive(event.target.value);">
+      	</div>
+        <div id="telephoneControls">This effect pairs a low-pass and a high-pass filter to "telephonize" a sound - removing 
+        	the high and low frequencies.  <!-- TODO: put LP/HP cutoff controls here -->
+        </div>
+        <div id="gainLFOControls">This effect chops up the sound by using a low-frequency oscillator (LFO) to control the
+        	gain.<br>
+        	LFO speed: <input id="lfo" type="range" min="0.5" max="20" step="0.5" value="3" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;">
+        </div>
+        <div id="chorusControls">A basic (monophonic) chorus effect.<br>
+        	Chorus speed: <input id="cspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (cspeed) cspeed.frequency.value = event.target.value;"><br>
+		    Chorus delay: <input id="cdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (cdelay) cdelay.delayTime.value = event.target.value;"><br>
+		    Chorus depth: <input id="cdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;">
+		</div>
+		<div id="flangeControls">A basic (monophonic) flanging effect.<br>
+		    Flanger speed: <input id="flspeed" type="range" min="0.05" max="5" step="0.05" value="0.25" style="height: 20px; width: 200px;" onInput="if (flspeed) flspeed.frequency.value = event.target.value;"><br>
+		    Flanger delay: <input id="fldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.005" style="height: 20px; width: 200px;" onInput="if (fldelay) flDelay.delayTime.value = event.target.value;"><br>
+		    Flanger depth: <input id="fldepth" type="range" min="0.0005" max="0.005" step="0.00025" value="0.002" style="height: 20px; width: 200px;" onInput="if (fldepth) fldepth.gain.value = event.target.value;"><br>
+		    Flanger feedback: <input id="flfb" type="range" min="0" max="1" step="0.01" value="0.5" style="height: 20px; width: 200px;" onInput="if (flfb) flfb.gain.value = event.target.value;">
+		</div>
+		<div id="ringmodControls">A ring modulator.<br>
+			Ringmod freq: <input id="rmfreq" type="range" min="9" max="13" step="0.01" value="11" style="height: 20px; width: 200px;" onInput="if (rmod) rmod.frequency.value = Math.pow(2, event.target.value);">
+		</div>
+    </div>
+<!--
+      <button onclick="this.innerText = toggleSample();">play</button>
+-->
+</body>
+</html>
