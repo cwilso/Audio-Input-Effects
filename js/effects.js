@@ -1,5 +1,6 @@
 var audioContext = new webkitAudioContext();
 var audioInput = null,
+    realAudioInput = null,
     effectInput = null,
     wetGain = null,
     dryGain = null,
@@ -11,15 +12,37 @@ var audioInput = null,
     cspeed = null,
     cdelay = null,
     cdepth = null,
+    scspeed = null,
+    scldelay = null,
+    scrdelay = null,
+    scldepth = null,
+    scrdepth = null,
     fldelay = null,
     flspeed = null,
     fldepth = null,
     flfb = null,
+    sflldelay = null,
+    sflrdelay = null,
+    sflspeed = null,
+    sflldepth = null,
+    sflrdepth = null,
+    sfllfb = null,
+    sflrfb = null,
     rmod = null;
 
 var rafID = null;
 var analyser1;
 var analyserView1;
+
+function convertToMono( input ) {
+    var splitter = audioContext.createChannelSplitter(2);
+    var merger = audioContext.createChannelMerger(2);
+
+    input.connect( splitter );
+    splitter.connect( merger, 0, 0 );
+    splitter.connect( merger, 0, 1 );
+    return merger;
+}
 
 function cancelAnalyserUpdates() {
     window.webkitCancelAnimationFrame( rafID );
@@ -33,9 +56,34 @@ function updateAnalysers(time) {
     rafID = window.webkitRequestAnimationFrame( updateAnalysers );
 }
 
+function toggleMono() {
+    if (audioInput != realAudioInput) {
+        audioInput.disconnect();
+        realAudioInput.disconnect();
+        audioInput = realAudioInput;
+    } else {
+        realAudioInput.disconnect();
+        audioInput = convertToMono( realAudioInput );
+    }
+
+    audioInput.connect(dryGain);
+    audioInput.connect(analyser1);
+    audioInput.connect(effectInput);
+}
+
 function gotStream(stream) {
     // Create an AudioNode from the stream.
-    audioInput = audioContext.createMediaStreamSource(stream);
+//    realAudioInput = audioContext.createMediaStreamSource(stream);
+    var input = audioContext.createMediaStreamSource(stream);
+
+    realAudioInput = audioContext.createBiquadFilter();
+    realAudioInput.frequency.value = 60.0;
+    realAudioInput.type = realAudioInput.NOTCH;
+    realAudioInput.Q = 10.0;
+
+    input.connect( realAudioInput );
+
+    audioInput = convertToMono( realAudioInput );
 
     analyser1 = audioContext.createAnalyser();
     analyser1.fftSize = 1024;
@@ -110,6 +158,18 @@ function changeEffect(effect) {
     flspeed = null;
     fldepth = null;
     flfb = null;
+    scspeed = null;
+    scldelay = null;
+    scrdelay = null;
+    scldepth = null;
+    scrdepth = null;
+    sflldelay = null;
+    sflrdelay = null;
+    sflspeed = null;
+    sflldepth = null;
+    sflrdepth = null;
+    sfllfb = null;
+    sflrfb = null;
 
     if (currentEffectNode) 
         currentEffectNode.disconnect();
@@ -147,10 +207,16 @@ function changeEffect(effect) {
         case 7: // Ringmod
             currentEffectNode = createRingmod();
             break;
-        case 8: // LPF LFO
+        case 8: // Stereo Chorus
+            currentEffectNode = createStereoChorus();
+            break;
+        case 9: // Stereo Flange
+            currentEffectNode = createStereoFlange();
+            break;
+        case 10: // LPF LFO
             currentEffectNode = createFilterLFO();
             break;
-        case 9: // Autowah
+        case 11: // Autowah
             currentEffectNode = createAutowah();
             break;
         default:
@@ -201,7 +267,7 @@ function createDelay() {
 
 function createReverb() {
     var convolver = audioContext.createConvolver();
-    convolver.buffer = reverbBuffer;
+    convolver.buffer = impulseResponse( 2.5, 2.0 );  // reverbBuffer;
     convolver.connect( wetGain );
     return convolver;
 }
@@ -369,100 +435,116 @@ function createFlange() {
     return inputNode;
 }
 
+function createStereoChorus() {
+    var splitter = audioContext.createChannelSplitter(2);
+    var merger = audioContext.createChannelMerger(2);
+    var inputNode = audioContext.createGainNode();
 
+    inputNode.connect( splitter );
+    inputNode.connect( wetGain );
 
+    var delayLNode = audioContext.createDelayNode();
+    var delayRNode = audioContext.createDelayNode();
+    delayLNode.delayTime.value = parseFloat( document.getElementById("scdelay").value );
+    delayRNode.delayTime.value = parseFloat( document.getElementById("scdelay").value );
+    scldelay = delayLNode;
+    scrdelay = delayRNode;
+    splitter.connect( delayLNode, 0 );
+    splitter.connect( delayRNode, 1 );
 
+    var osc = audioContext.createOscillator();
+    scldepth = audioContext.createGainNode();
+    scrdepth = audioContext.createGainNode();
 
+    scldepth.gain.value = parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
+    scrdepth.gain.value = - parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
 
+    osc.type = osc.TRIANGLE;
+    osc.frequency.value = parseFloat( document.getElementById("scspeed").value );
+    scspeed = osc;
 
+    osc.connect(scldepth);
+    osc.connect(scrdepth);
 
+    scldepth.connect(delayLNode.delayTime);
+    scrdepth.connect(delayRNode.delayTime);
 
+    delayLNode.connect( merger, 0, 0 );
+    delayRNode.connect( merger, 0, 1 );
+    merger.connect( wetGain );
 
+    osc.noteOn(0);
 
-
-
-
-
-
-// Visualizer stuff here
-var analyser1;
-var analyserCanvas1;
-
-var rafID = null;
-
-function cancelVisualizerUpdates() {
-  window.webkitCancelAnimationFrame( rafID );
-}
-
-function updateAnalyser( analyserNode, drawContext ) {
-    var SPACER_WIDTH = 3;
-    var BAR_WIDTH = 1;
-    var OFFSET = 100;
-    var CUTOFF = 23;
-    var CANVAS_WIDTH = 800;
-    var CANVAS_HEIGHT = 120;
-    var numBars = Math.round(CANVAS_WIDTH / SPACER_WIDTH);
-    var freqByteData = new Uint8Array(analyserNode.frequencyBinCount);
-
-    analyserNode.getByteFrequencyData(freqByteData); 
-
-    drawContext.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    drawContext.fillStyle = '#F6D565';
-    drawContext.lineCap = 'round';
-    var multiplier = analyserNode.frequencyBinCount / numBars;
-
-    // Draw rectangle for each frequency bin.
-    for (var i = 0; i < numBars; ++i) {
-        var magnitude = 0;
-        var offset = Math.floor( i * multiplier );
-        // gotta sum/average the block, or we miss narrow-bandwidth spikes
-        for (var j = 0; j< multiplier; j++)
-            magnitude += freqByteData[offset + j];
-        magnitude = magnitude / multiplier;
-        var magnitude2 = freqByteData[i * multiplier];
-        drawContext.fillStyle = "hsl( " + Math.round((i*360)/numBars) + ", 100%, 50%)";
-        drawContext.fillRect(i * SPACER_WIDTH, CANVAS_HEIGHT, BAR_WIDTH, -magnitude);
-    }
+    return inputNode;
 }
 
 
-function updateVisualizer(time) {
-    updateAnalyser( analyser1, analyserCanvas1 );
-    rafID = window.webkitRequestAnimationFrame( updateVisualizer );
+function createStereoFlange() {
+    var splitter = audioContext.createChannelSplitter(2);
+    var merger = audioContext.createChannelMerger(2);
+    var inputNode = audioContext.createGainNode();
+    sfllfb = audioContext.createGainNode();
+    sflrfb = audioContext.createGainNode();
+    sflspeed = audioContext.createOscillator();
+    sflldepth = audioContext.createGainNode();
+    sflrdepth = audioContext.createGainNode();
+    sflldelay = audioContext.createDelayNode();
+    sflrdelay = audioContext.createDelayNode();
+
+
+    sfllfb.gain.value = sflrfb.gain.value = parseFloat( document.getElementById("sflfb").value );
+
+    inputNode.connect( splitter );
+    inputNode.connect( wetGain );
+
+    sflldelay.delayTime.value = parseFloat( document.getElementById("sfldelay").value );
+    sflrdelay.delayTime.value = parseFloat( document.getElementById("sfldelay").value );
+
+    splitter.connect( sflldelay, 0 );
+    splitter.connect( sflrdelay, 1 );
+    sflldelay.connect( sfllfb );
+    sflrdelay.connect( sflrfb );
+    sfllfb.connect( sflrdelay );
+    sflrfb.connect( sflldelay );
+
+    sflldepth.gain.value = parseFloat( document.getElementById("sfldepth").value ); // depth of change to the delay:
+    sflrdepth.gain.value = - parseFloat( document.getElementById("sfldepth").value ); // depth of change to the delay:
+
+    sflspeed.type = sflspeed.TRIANGLE;
+    sflspeed.frequency.value = parseFloat( document.getElementById("sflspeed").value );
+
+    sflspeed.connect( sflldepth );
+    sflspeed.connect( sflrdepth );
+
+    sflldepth.connect( sflldelay.delayTime );
+    sflrdepth.connect( sflrdelay.delayTime );
+
+    sflldelay.connect( merger, 0, 0 );
+    sflrdelay.connect( merger, 0, 1 );
+    merger.connect( wetGain );
+
+    sflspeed.noteOn(0);
+
+    return inputNode;
 }
 
-var visualizerActive = false;
-var visualizerNode = null;
 
-function visualizeDrums(canvasElement) {
-    if ( visualizerActive ) {
-        cancelVisualizerUpdates();
-        visualizerNode.noteOff(0);
-        visualizerNode = null;
-        analyser1 = null;
-        analyserCanvas1 = null;
-        visualizerActive = false;
-        return "visualize!";
-    }
 
-    visualizerActive = true;
-    visualizerNode = audioContext.createBufferSource();
-    visualizerNode.buffer = drumsBuffer;
-    visualizerNode.loop = true;
 
-    analyser1 = audioContext.createAnalyser();
-    analyser1.fftSize = 2048;
-    analyser1.maxDecibels = 0;
 
-    analyserCanvas1 = canvasElement.getContext('2d');
-  
-    visualizerNode.connect( audioContext.destination );
-    visualizerNode.connect( analyser1 );
 
-    visualizerNode.noteOn(0);
-    updateVisualizer(0);
-    return "stop!";
-}
+
+
+
+
+ 
+
+
+
+
+
+
+
 
 var ppDemo = null;
 var isPingPongPlaying = false;
@@ -510,4 +592,21 @@ function playPingPong() {
     isPingPongPlaying = true;
 
     return "stop";
+}
+
+function impulseResponse( duration, decay, reverse ) {
+    var sampleRate = audioContext.sampleRate;
+    var length = sampleRate * duration;
+    var impulse = audioContext.createBuffer(2, length, sampleRate);
+    var impulseL = impulse.getChannelData(0);
+    var impulseR = impulse.getChannelData(1);
+
+    if (!decay)
+        decay = 2.0;
+    for (var i = 0; i < length; i++){
+      var n = reverse ? length - i : i;
+      impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+      impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+    }
+    return impulse;
 }

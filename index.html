@@ -50,6 +50,8 @@
 		<option>Chorus
 		<option>Flange
 		<option>Ring mod
+		<option>Stereo Chorus
+		<option>Stereo Flange
 <!--
 		<option>LPFilter LFO (NYI)
 		<option>Autowah (NYI)
@@ -63,8 +65,10 @@ Stereo flange
 
 -->
 	</select>
-	&nbsp;&nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
+	&nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
           onInput="crossfade( event.target.value );">
+          &nbsp;&nbsp;Mono-ize input: <input type="checkbox" checked onchange="toggleMono()">
+<!--          &nbsp;&nbsp;60Hz filter: <input type="checkbox" checked onchange="toggleFilter()"> -->
     </div>
 	<div id="controls">
 		<div id="delayControls">A basic digital delay.<br>
@@ -72,7 +76,7 @@ Stereo flange
          	Regen: <input id="dregen" type="range" min="0.0" max="1.0" step="0.01" value="0.75" style="height: 20px; width: 200px;" 
           		onInput="if (dregen) dregen.gain.value = event.target.value;">
 		</div>
-		<div id="reverbControls">A convolution-based "hall" reverb, using a prerecorded impulse file. <!-- TODO: let user select other impulse response files, even auto-generate -->
+		<div id="reverbControls">A convolution-based "hall" reverb, using a generated impulse file. <!-- TODO: let user select other impulse response files, even auto-generate -->
 		</div>
 		<div id="distortionControls">A waveshaper, used to do distortion.  Note this will become more high-quality in the future, as we improve the antialiasing in waveshapers.<br>
 			Drive: <input type="range" min="0.01" max="20" step="0.01" value="5" style="height: 20px; width: 200px;" 
@@ -88,16 +92,27 @@ Stereo flange
         <div id="chorusControls">A basic (monophonic) chorus effect.<br>
         	Chorus speed: <input id="cspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (cspeed) cspeed.frequency.value = event.target.value;"><br>
 		    Chorus delay: <input id="cdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (cdelay) cdelay.delayTime.value = event.target.value;"><br>
-		    Chorus depth: <input id="cdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;">
+		    Chorus depth: <input id="cdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (cdepth) cdepth.gain.value = event.target.value;">
 		</div>
 		<div id="flangeControls">A basic (monophonic) flanging effect.<br>
 		    Flanger speed: <input id="flspeed" type="range" min="0.05" max="5" step="0.05" value="0.25" style="height: 20px; width: 200px;" onInput="if (flspeed) flspeed.frequency.value = event.target.value;"><br>
-		    Flanger delay: <input id="fldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.005" style="height: 20px; width: 200px;" onInput="if (fldelay) flDelay.delayTime.value = event.target.value;"><br>
+		    Flanger delay: <input id="fldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.005" style="height: 20px; width: 200px;" onInput="if (fldelay) fldelay.delayTime.value = event.target.value;"><br>
 		    Flanger depth: <input id="fldepth" type="range" min="0.0005" max="0.005" step="0.00025" value="0.002" style="height: 20px; width: 200px;" onInput="if (fldepth) fldepth.gain.value = event.target.value;"><br>
 		    Flanger feedback: <input id="flfb" type="range" min="0" max="1" step="0.01" value="0.5" style="height: 20px; width: 200px;" onInput="if (flfb) flfb.gain.value = event.target.value;">
 		</div>
 		<div id="ringmodControls">A ring modulator.<br>
 			Ringmod freq: <input id="rmfreq" type="range" min="9" max="13" step="0.01" value="11" style="height: 20px; width: 200px;" onInput="if (rmod) rmod.frequency.value = Math.pow(2, event.target.value);">
+		</div>
+        <div id="stereoChorusControls">A stereo chorus effect.<br>
+        	Chorus speed: <input id="scspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (scspeed) scspeed.frequency.value = event.target.value;"><br>
+		    Chorus delay: <input id="scdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (scldelay) scldelay.delayTime.value = event.target.value;if (scrdelay) scrdelay.delayTime.value = event.target.value;"><br>
+		    Chorus depth: <input id="scdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (scldepth) scldepth.gain.value = event.target.value; if (scrdepth) scrdepth.gain.value = -1.0 * event.target.value;">
+		</div>
+		<div id="flangeControls">A stereo flanging effect.<br>
+		    Flanger speed: <input id="sflspeed" type="range" min="0.05" max="2" step="0.05" value="0.15" style="height: 20px; width: 200px;" onInput="if (sflspeed) sflspeed.frequency.value = event.target.value;"><br>
+		    Flanger delay: <input id="sfldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.003" style="height: 20px; width: 200px;" onInput="if (sflldelay) sflldelay.delayTime.value = event.target.value; if (sflrdelay) sflrdelay.delayTime.value = event.target.value;"><br>
+		    Flanger depth: <input id="sfldepth" type="range" min="0.0005" max="0.02" step="0.00025" value="0.005" style="height: 20px; width: 200px;" onInput="if (sflldepth) sflldepth.gain.value = event.target.value; if (sflrdepth) sflrdepth.gain.value = -1.0 * event.target.value;"><br>
+		    Flanger feedback: <input id="sflfb" type="range" min="0" max="1" step="0.01" value="0.9" style="height: 20px; width: 200px;" onInput="if (sfllfb) sfllfb.gain.value = event.target.value; if (sflrfb) sflrfb.gain.value = event.target.value;">
 		</div>
     </div>
 <!--
