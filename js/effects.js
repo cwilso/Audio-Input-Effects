@@ -76,14 +76,15 @@ function gotStream(stream) {
 //    realAudioInput = audioContext.createMediaStreamSource(stream);
     var input = audioContext.createMediaStreamSource(stream);
 
+/*
     realAudioInput = audioContext.createBiquadFilter();
     realAudioInput.frequency.value = 60.0;
     realAudioInput.type = realAudioInput.NOTCH;
     realAudioInput.Q = 10.0;
 
     input.connect( realAudioInput );
-
-    audioInput = convertToMono( realAudioInput );
+*/
+    audioInput = convertToMono( input );
 
     analyser1 = audioContext.createAnalyser();
     analyser1.fftSize = 1024;
