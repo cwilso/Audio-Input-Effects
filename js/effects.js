@@ -214,10 +214,13 @@ function changeEffect(effect) {
         case 9: // Stereo Flange
             currentEffectNode = createStereoFlange();
             break;
-        case 10: // LPF LFO
+        case 10: // Octave doubling
+            currentEffectNode = createDoubler();
+            break;
+        case 11: // LPF LFO
             currentEffectNode = createFilterLFO();
             break;
-        case 11: // Autowah
+        case 12: // Autowah
             currentEffectNode = createAutowah();
             break;
         default:
@@ -530,8 +533,11 @@ function createStereoFlange() {
     return inputNode;
 }
 
-
-
+function createDoubler() {
+    effect = new Jungle( audioContext );
+    effect.output.connect( wetGain );
+    return effect.input;
+}
 
 
 

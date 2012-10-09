@@ -3,6 +3,7 @@
 <head>
 	<title>Live input effects</title>
 	<script src="js/waveshaper.js"></script>
+	<script src="js/jungle.js"></script>
 	<script src="js/effects.js"></script>
 
 	<!-- Visualizer stuff -->
@@ -52,6 +53,7 @@
 		<option>Ring mod
 		<option>Stereo Chorus
 		<option>Stereo Flange
+		<option>Octave Doubler
 <!--
 		<option>LPFilter LFO (NYI)
 		<option>Autowah (NYI)
@@ -113,6 +115,9 @@ Stereo flange
 		    Flanger delay: <input id="sfldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.003" style="height: 20px; width: 200px;" onInput="if (sflldelay) sflldelay.delayTime.value = event.target.value; if (sflrdelay) sflrdelay.delayTime.value = event.target.value;"><br>
 		    Flanger depth: <input id="sfldepth" type="range" min="0.0005" max="0.02" step="0.00025" value="0.005" style="height: 20px; width: 200px;" onInput="if (sflldepth) sflldepth.gain.value = event.target.value; if (sflrdepth) sflrdepth.gain.value = -1.0 * event.target.value;"><br>
 		    Flanger feedback: <input id="sflfb" type="range" min="0" max="1" step="0.01" value="0.9" style="height: 20px; width: 200px;" onInput="if (sfllfb) sfllfb.gain.value = event.target.value; if (sflrfb) sflrfb.gain.value = event.target.value;">
+		</div>
+		<div id="doublerControls">An octave-doubling effect, using sample-accurate delay ramping.<br>
+			<!-- TODO: doesn't need to be just octave, should be able to control. -->
 		</div>
     </div>
 <!--
