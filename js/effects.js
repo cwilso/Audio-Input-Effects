@@ -333,6 +333,7 @@ function createRingmod() {
     osc.frequency.value = Math.pow( 2, parseFloat( document.getElementById("rmfreq").value ) );
     osc.connect(ring.gain);
 
+    ring.gain.value = 0.0;
     gain.connect(ring);
     ring.connect(wetGain);
     osc.noteOn(0);
