@@ -271,7 +271,7 @@ function createDelay() {
 
 function createReverb() {
     var convolver = audioContext.createConvolver();
-    convolver.buffer = impulseResponse( 2.5, 2.0 );  // reverbBuffer;
+    convolver.buffer = reverbBuffer; // impulseResponse( 2.5, 2.0 );  // reverbBuffer;
     convolver.connect( wetGain );
     return convolver;
 }
