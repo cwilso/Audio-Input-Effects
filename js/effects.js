@@ -4,6 +4,7 @@ var audioInput = null,
     effectInput = null,
     wetGain = null,
     dryGain = null,
+    outputMix = null,
     currentEffectNode = null,
     reverbBuffer = null,
     dtime = null,
@@ -97,15 +98,17 @@ function gotStream(stream) {
     analyserView2.initByteBuffer( analyser2 );
 
     // create mix gain nodes
+    outputMix = audioContext.createGainNode();
     dryGain = audioContext.createGainNode();
     wetGain = audioContext.createGainNode();
     effectInput = audioContext.createGainNode();
     audioInput.connect(dryGain);
     audioInput.connect(analyser1);
     audioInput.connect(effectInput);
-    dryGain.connect(audioContext.destination);
-    wetGain.connect(audioContext.destination);
-    wetGain.connect(analyser2);
+    dryGain.connect(outputMix);
+    wetGain.connect(outputMix);
+    outputMix.connect( audioContext.destination);
+    outputMix.connect(analyser2);
     crossfade(1.0);
     changeEffect(0);
     updateAnalysers();
