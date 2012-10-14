@@ -31,6 +31,11 @@ var audioInput = null,
     sflrfb = null,
     rmod = null;
 
+    mddelay = null;
+    mddepth = null;
+    mdspeed = null;
+
+
 var rafID = null;
 var analyser1;
 var analyserView1;
@@ -220,13 +225,17 @@ function changeEffect(effect) {
         case 10: // Octave doubling
             currentEffectNode = createDoubler();
             break;
-        case 11: // LPF LFO
+         case 11: // Mod Delay 
+            currentEffectNode = createModDelay();
+            break;
+        case 12: // LPF LFO
             currentEffectNode = createFilterLFO();
             break;
         case 12: // Autowah
             currentEffectNode = createAutowah();
             break;
         default:
+            break;
     }
     audioInput.connect( currentEffectNode );
 }
@@ -293,14 +302,22 @@ function createDistortion() {
 function createGainLFO() {
     var osc = audioContext.createOscillator();
     var gain = audioContext.createGainNode();
+    var depth = audioContext.createGainNode();
 
-    osc.type = osc.SINE;
+    osc.type = parseInt(document.getElementById("lfotype").value);
     osc.frequency.value = parseFloat( document.getElementById("lfo").value );
 
-    gain.gain.value = 1.0; // to offset 
-    osc.connect(gain.gain);
+    gain.gain.value = 1.0; // to offset
+    depth.gain.value = 1.0;
+    osc.connect(depth); // scales the range of the lfo
+
+
+    depth.connect(gain.gain);
     gain.connect( wetGain );
     lfo = osc;
+    lfotype = osc;
+    lfodepth = depth;
+
 
     osc.noteOn(0);
     return gain;
@@ -486,6 +503,59 @@ function createStereoChorus() {
     return inputNode;
 }
 
+/*
+    Add modulation to delayed signal akin to ElectroHarmonix MemoryMan Guitar Pedal.
+    Simple combination of effects with great output hear on lots of records.
+    
+    FX Chain ASCII PIC:
+                v- FEEDBACK -|
+    INPUT -> DELAY -> CHORUS -> OUTPUT
+*/
+function createModDelay() {
+    // Create input node for incoming audio
+    var inputNode = audioContext.createGainNode();
+
+    // SET UP DELAY NODE
+    var delayNode = audioContext.createDelayNode();
+    delayNode.delayTime.value = parseFloat( document.getElementById("mdtime").value );
+    mdtime = delayNode;
+
+    var feedbackGainNode = audioContext.createGainNode();
+    feedbackGainNode.gain.value = parseFloat( document.getElementById("mdfeedback").value );
+    mdfeedback = feedbackGainNode;
+
+
+    // SET UP CHORUS NODE
+    var chorus = audioContext.createDelayNode();
+    chorus.delayTime.value = parseFloat( document.getElementById("mddelay").value );
+    mddelay = chorus;
+
+    var osc  = audioContext.createOscillator();
+    var chorusRateGainNode = audioContext.createGainNode();
+    chorusRateGainNode.gain.value = parseFloat( document.getElementById("mddepth").value ); // depth of change to the delay:
+    mddepth = chorusRateGainNode;
+
+    osc.type = osc.SINE;
+    osc.frequency.value = parseFloat( document.getElementById("mdspeed").value );
+    mdspeed = osc;
+
+    osc.connect(chorusRateGainNode);
+    chorusRateGainNode.connect(chorus.delayTime);
+
+    // Connect the FX chain together
+    // create circular chain for delay to "feedback" to itself
+    inputNode.connect( delayNode );
+    delayNode.connect( chorus );
+    delayNode.connect( feedbackGainNode );
+    chorus.connect(feedbackGainNode);
+    feedbackGainNode.connect( delayNode );
+    feedbackGainNode.connect( wetGain );
+
+
+    osc.noteOn(0);
+
+    return inputNode;
+}
 
 function createStereoFlange() {
     var splitter = audioContext.createChannelSplitter(2);
@@ -541,18 +611,6 @@ function createDoubler() {
     effect.output.connect( wetGain );
     return effect.input;
 }
-
-
-
-
-
-
-
- 
-
-
-
-
 
 
 
@@ -621,4 +679,3 @@ function impulseResponse( duration, decay, reverse ) {
     }
     return impulse;
 }
-
