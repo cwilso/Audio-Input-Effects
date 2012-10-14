@@ -21,12 +21,12 @@
 	<script src="js/visualizer/shader.js"></script>
 
 	<style>
-		body { font: 14pt Arial, sans-serif; background: beige; }
-		select { font: 14pt Arial, sans-serif; }
-		div#controls div { display:none; border: 1px solid gray; border-radius: 5px; padding: 10px; width: 728px;}
-		div#controls div.display { display: block; }
-		#controls { padding-top: 24px;}
-		#effectMix { padding-top: 12px;}
+	body { font: 14pt Arial, sans-serif; background: beige; }
+	select { font: 14pt Arial, sans-serif; }
+	div#controls div { display:none; border: 1px solid gray; border-radius: 5px; padding: 10px; width: 728px;}
+	div#controls div.display { display: block; }
+	#controls { padding-top: 24px;}
+	#effectMix { padding-top: 12px;}
 	</style>
 </head>
 <body>
@@ -34,26 +34,27 @@
 	<canvas id="view2" width="750" height="200"></canvas>
 	<div>
 		<input type="radio" name="radioSet" value="data" 
-			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_FREQUENCY); analyserView2.setAnalysisType(ANALYSISTYPE_FREQUENCY);">Frequency
+		onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_FREQUENCY); analyserView2.setAnalysisType(ANALYSISTYPE_FREQUENCY);">Frequency
 		<input type="radio" name="radioSet" value="data" 
-			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_SONOGRAM);">Sonogram
+		onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_SONOGRAM);">Sonogram
 		<input type="radio" name="radioSet" value="data" checked="checked" 
-			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);">3D Sonogram
+		onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM); analyserView2.setAnalysisType(ANALYSISTYPE_3D_SONOGRAM);">3D Sonogram
 		<input type="radio" name="radioSet" value="data" 
-			onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_WAVEFORM); analyserView2.setAnalysisType(ANALYSISTYPE_WAVEFORM);">Waveform
+		onmousedown="analyserView1.setAnalysisType(ANALYSISTYPE_WAVEFORM); analyserView2.setAnalysisType(ANALYSISTYPE_WAVEFORM);">Waveform
 	</div>
 	<div id="effectMix">Effect: <select id="effect" onchange="changeEffect(this.selectedIndex);">
-		<option>Delay
-		<option>Reverb
-		<option>Distortion
-		<option>Telephone
-		<option>Gain LFO
-		<option>Chorus
-		<option>Flange
-		<option>Ring mod
-		<option>Stereo Chorus
-		<option>Stereo Flange
-		<option>Octave Doubler
+		<option>Delay </option>
+		<option>Reverb </option>
+		<option>Distortion </option>
+		<option>Telephone </option>
+		<option>Gain LFO </option>
+		<option>Chorus </option>
+		<option>Flange </option>
+		<option>Ring mod </option>
+		<option>Stereo Chorus </option>
+		<option>Stereo Flange </option>
+		<option>Octave Doubler </option>
+		<option>Mod Delay </option>
 <!--
 		<option>LPFilter LFO (NYI)
 		<option>Autowah (NYI)
@@ -66,65 +67,83 @@ Stereo ping-pong delay
 Stereo flange
 
 -->
-	</select>
-	&nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
-          onInput="crossfade( event.target.value );">
-          &nbsp;&nbsp;Mono-ize input: <input type="checkbox" checked onchange="toggleMono()">
+</select>
+&nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
+onInput="crossfade( event.target.value );">
+&nbsp;&nbsp;Mono-ize input: <input type="checkbox" checked onchange="toggleMono()">
 <!--          &nbsp;&nbsp;60Hz filter: <input type="checkbox" checked onchange="toggleFilter()"> -->
-    </div>
-	<div id="controls">
-		<div id="delayControls">A basic digital delay.<br>
-			Delay time: <input id="dtime" type="range" min="0.01" max="3" step="0.01" value="0.15" style="height: 20px; width: 200px" onInput="if (dtime) dtime.delayTime.value = event.target.value;"><br>
-         	Regen: <input id="dregen" type="range" min="0.0" max="1.0" step="0.01" value="0.75" style="height: 20px; width: 200px;" 
-          		onInput="if (dregen) dregen.gain.value = event.target.value;">
-		</div>
-		<div id="reverbControls">A convolution-based "hall" reverb, using a generated impulse file. <!-- TODO: let user select other impulse response files, even auto-generate -->
-		</div>
-		<div id="distortionControls">A waveshaper, used to do distortion.  Note this will become more high-quality in the future, as we improve the antialiasing in waveshapers.<br>
-			Drive: <input type="range" min="0.01" max="20" step="0.01" value="5" style="height: 20px; width: 200px;" 
-          onInput="if (waveshaper) waveshaper.setDrive(event.target.value);">
-      	</div>
-        <div id="telephoneControls">This effect pairs a low-pass and a high-pass filter to "telephonize" a sound - removing 
-        	the high and low frequencies.  <!-- TODO: put LP/HP cutoff controls here -->
-        </div>
-        <div id="gainLFOControls">This effect chops up the sound by using a low-frequency oscillator (LFO) to control the
-        	gain.<br>
-        	LFO speed: <input id="lfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;">
-        </div>
-        <div id="chorusControls">A basic (monophonic) chorus effect.<br>
-        	Chorus speed: <input id="cspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (cspeed) cspeed.frequency.value = event.target.value;"><br>
-		    Chorus delay: <input id="cdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (cdelay) cdelay.delayTime.value = event.target.value;"><br>
-		    Chorus depth: <input id="cdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (cdepth) cdepth.gain.value = event.target.value;">
-		</div>
-		<div id="flangeControls">A basic (monophonic) flanging effect.<br>
-		    Flanger speed: <input id="flspeed" type="range" min="0.05" max="5" step="0.05" value="0.25" style="height: 20px; width: 200px;" onInput="if (flspeed) flspeed.frequency.value = event.target.value;"><br>
-		    Flanger delay: <input id="fldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.005" style="height: 20px; width: 200px;" onInput="if (fldelay) fldelay.delayTime.value = event.target.value;"><br>
-		    Flanger depth: <input id="fldepth" type="range" min="0.0005" max="0.005" step="0.00025" value="0.002" style="height: 20px; width: 200px;" onInput="if (fldepth) fldepth.gain.value = event.target.value;"><br>
-		    Flanger feedback: <input id="flfb" type="range" min="0" max="1" step="0.01" value="0.5" style="height: 20px; width: 200px;" onInput="if (flfb) flfb.gain.value = event.target.value;">
-		</div>
-		<div id="ringmodControls">A ring modulator.<br>
-			Ringmod freq: <input id="rmfreq" type="range" min="9" max="13" step="0.01" value="11" style="height: 20px; width: 200px;" onInput="if (rmod) rmod.frequency.value = Math.pow(2, event.target.value);">
-		</div>
-        <div id="stereoChorusControls">A stereo chorus effect.<br>
-        	Chorus speed: <input id="scspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (scspeed) scspeed.frequency.value = event.target.value;"><br>
-		    Chorus delay: <input id="scdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (scldelay) scldelay.delayTime.value = event.target.value;if (scrdelay) scrdelay.delayTime.value = event.target.value;"><br>
-		    Chorus depth: <input id="scdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (scldepth) scldepth.gain.value = event.target.value; if (scrdepth) scrdepth.gain.value = -1.0 * event.target.value;">
-		</div>
-		<div id="flangeControls">A stereo flanging effect.<br>
-		    Flanger speed: <input id="sflspeed" type="range" min="0.05" max="2" step="0.05" value="0.15" style="height: 20px; width: 200px;" onInput="if (sflspeed) sflspeed.frequency.value = event.target.value;"><br>
-		    Flanger delay: <input id="sfldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.003" style="height: 20px; width: 200px;" onInput="if (sflldelay) sflldelay.delayTime.value = event.target.value; if (sflrdelay) sflrdelay.delayTime.value = event.target.value;"><br>
-		    Flanger depth: <input id="sfldepth" type="range" min="0.0005" max="0.02" step="0.00025" value="0.005" style="height: 20px; width: 200px;" onInput="if (sflldepth) sflldepth.gain.value = event.target.value; if (sflrdepth) sflrdepth.gain.value = -1.0 * event.target.value;"><br>
-		    Flanger feedback: <input id="sflfb" type="range" min="0" max="1" step="0.01" value="0.9" style="height: 20px; width: 200px;" onInput="if (sfllfb) sfllfb.gain.value = event.target.value; if (sflrfb) sflrfb.gain.value = event.target.value;">
-		</div>
-		<div id="doublerControls">An octave-doubling effect, using sample-accurate delay ramping.<br>
-			<!-- TODO: doesn't need to be just octave, should be able to control. -->
-		</div>
-    </div>
+</div>
+<div id="controls">
+	<div id="delayControls">A basic digital delay.<br>
+		Delay time: <input id="dtime" type="range" min="0.01" max="3" step="0.01" value="0.15" style="height: 20px; width: 200px" onInput="if (dtime) dtime.delayTime.value = event.target.value;"><br>
+		Regen: <input id="dregen" type="range" min="0.0" max="1.0" step="0.01" value="0.75" style="height: 20px; width: 200px;" 
+		onInput="if (dregen) dregen.gain.value = event.target.value;">
+	</div>
+	<div id="reverbControls">A convolution-based "hall" reverb, using a generated impulse file. <!-- TODO: let user select other impulse response files, even auto-generate -->
+	</div>
+	<div id="distortionControls">A waveshaper, used to do distortion.  Note this will become more high-quality in the future, as we improve the antialiasing in waveshapers.<br>
+		Drive: <input type="range" min="0.01" max="20" step="0.01" value="5" style="height: 20px; width: 200px;" 
+		onInput="if (waveshaper) waveshaper.setDrive(event.target.value);">
+	</div>
+	<div id="telephoneControls">This effect pairs a low-pass and a high-pass filter to "telephonize" a sound - removing 
+		the high and low frequencies.  <!-- TODO: put LP/HP cutoff controls here -->
+	</div>
+	<div id="gainLFOControls">This effect chops up the sound by using a low-frequency oscillator (LFO) to control the
+		gain.<br>
+		LFO type: 
+		<select id="lfotype" onchange="if (lfotype) lfotype.type = event.target.value;">
+			<option selected="selected" value="0">SIN</option>
+			<option value="1">SQUARE</option>
+			<option value="2">SAWTOOTH</option>
+			<option value="3">TRIANGLE</option>
+		</select><br>
+		LFO speed: <input id="lfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;"><br>
+		LFO depth: <input id="lfodepth" type="range" min="0.0" max="1.0" step="0.1" value="1.0" style="height: 20px; width: 200px;" onInput="if (lfodepth) lfodepth.gain.value = event.target.value;">
+	</div>
+	<div id="chorusControls">A basic (monophonic) chorus effect.<br>
+		Chorus speed: <input id="cspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (cspeed) cspeed.frequency.value = event.target.value;"><br>
+		Chorus delay: <input id="cdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (cdelay) cdelay.delayTime.value = event.target.value;"><br>
+		Chorus depth: <input id="cdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (cdepth) cdepth.gain.value = event.target.value;">
+	</div>
+	<div id="flangeControls">A basic (monophonic) flanging effect.<br>
+		Flanger speed: <input id="flspeed" type="range" min="0.05" max="5" step="0.05" value="0.25" style="height: 20px; width: 200px;" onInput="if (flspeed) flspeed.frequency.value = event.target.value;"><br>
+		Flanger delay: <input id="fldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.005" style="height: 20px; width: 200px;" onInput="if (fldelay) fldelay.delayTime.value = event.target.value;"><br>
+		Flanger depth: <input id="fldepth" type="range" min="0.0005" max="0.005" step="0.00025" value="0.002" style="height: 20px; width: 200px;" onInput="if (fldepth) fldepth.gain.value = event.target.value;"><br>
+		Flanger feedback: <input id="flfb" type="range" min="0" max="1" step="0.01" value="0.5" style="height: 20px; width: 200px;" onInput="if (flfb) flfb.gain.value = event.target.value;">
+	</div>
+	<div id="ringmodControls">A ring modulator.<br>
+		Ringmod freq: <input id="rmfreq" type="range" min="9" max="13" step="0.01" value="11" style="height: 20px; width: 200px;" onInput="if (rmod) rmod.frequency.value = Math.pow(2, event.target.value);">
+	</div>
+	<div id="stereoChorusControls">A stereo chorus effect.<br>
+		Chorus speed: <input id="scspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (scspeed) scspeed.frequency.value = event.target.value;"><br>
+		Chorus delay: <input id="scdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (scldelay) scldelay.delayTime.value = event.target.value;if (scrdelay) scrdelay.delayTime.value = event.target.value;"><br>
+		Chorus depth: <input id="scdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (scldepth) scldepth.gain.value = event.target.value; if (scrdepth) scrdepth.gain.value = -1.0 * event.target.value;">
+	</div>
+	<div id="flangeControls">A stereo flanging effect.<br>
+		Flanger speed: <input id="sflspeed" type="range" min="0.05" max="2" step="0.05" value="0.15" style="height: 20px; width: 200px;" onInput="if (sflspeed) sflspeed.frequency.value = event.target.value;"><br>
+		Flanger delay: <input id="sfldelay" type="range" min="0.001" max="0.02" step="0.001" value="0.003" style="height: 20px; width: 200px;" onInput="if (sflldelay) sflldelay.delayTime.value = event.target.value; if (sflrdelay) sflrdelay.delayTime.value = event.target.value;"><br>
+		Flanger depth: <input id="sfldepth" type="range" min="0.0005" max="0.02" step="0.00025" value="0.005" style="height: 20px; width: 200px;" onInput="if (sflldepth) sflldepth.gain.value = event.target.value; if (sflrdepth) sflrdepth.gain.value = -1.0 * event.target.value;"><br>
+		Flanger feedback: <input id="sflfb" type="range" min="0" max="1" step="0.01" value="0.9" style="height: 20px; width: 200px;" onInput="if (sfllfb) sfllfb.gain.value = event.target.value; if (sflrfb) sflrfb.gain.value = event.target.value;">
+	</div>
+	<div id="doublerControls">An octave-doubling effect, using sample-accurate delay ramping.<br>
+		<!-- TODO: doesn't need to be just octave, should be able to control. -->
+	</div>
+	<div id="modDelayControls">A delay with a basic chorus effect.<br>
+		Delay time: <input id="mdtime" type="range" min="0.01" max="3" step="0.01" value="0.15" style="height: 20px; width: 200px" onInput="if (mdtime) mdtime.delayTime.value = event.target.value;"><br>
+		Regen: <input id="mdfeedback" type="range" min="0.0" max="1.0" step="0.01" value="0.5" style="height: 20px; width: 200px;" 
+		onInput="if (mdfeedback) mdfeedback.gain.value = event.target.value;"><br>
+
+		Chorus speed: <input id="mdspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (mdspeed) mdspeed.frequency.value = event.target.value;"><br>
+		Chorus delay: <input id="mddelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (mddelay) mddelay.delayTime.value = event.target.value;"><br>
+		Chorus depth: <input id="mddepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (mddepth) mddepth.gain.value = event.target.value;">
+	</div>
+
+</div>
 <!--
       <button onclick="this.innerText = toggleSample();">play</button>
--->
+  -->
 
-<a href="https://github.com/cwilso/Audio-Input-Effects" style="position: absolute; z-index:2; top: 0; right: 0; border: 0;"><img src="img/forkme.png" alt="Fork me on GitHub"></a>
+  <a href="https://github.com/cwilso/Audio-Input-Effects" style="position: absolute; z-index:2; top: 0; right: 0; border: 0;"><img src="img/forkme.png" alt="Fork me on GitHub"></a>
 
 </body>
 </html>

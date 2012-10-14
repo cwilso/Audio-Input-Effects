@@ -621,3 +621,4 @@ function impulseResponse( duration, decay, reverse ) {
     }
     return impulse;
 }
+
