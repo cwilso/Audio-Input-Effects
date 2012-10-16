@@ -76,6 +76,7 @@ function createDelayTimeBuffer(context, activeTime, fadeTime) {
     
     // 1st part of cycle
     for (var i = 0; i < length1; ++i) {
+        // for octave-up, change to "(length1-i)/length"
         p[i] = i / length1;
     }
 
