@@ -82,6 +82,10 @@ AnalyserView = function(canvasElementID) {
     this.initGL();
 }
 
+function load3DSonogram( shader ) {
+    this.sonogram3DShader = shader; 
+}
+
 AnalyserView.prototype.initGL = function() {
     model = new Matrix4x4();
     view = new Matrix4x4();
@@ -215,12 +219,16 @@ AnalyserView.prototype.initGL = function() {
   // Note we do not unbind this buffer -- not necessary
 
   // Load the shaders
-  this.frequencyShader = o3djs.shader.loadFromURL(gl, "shaders/common-vertex.shader", "shaders/frequency-fragment.shader");
-  this.waveformShader = o3djs.shader.loadFromURL(gl, "shaders/common-vertex.shader", "shaders/waveform-fragment.shader");
-  this.sonogramShader = o3djs.shader.loadFromURL(gl, "shaders/common-vertex.shader", "shaders/sonogram-fragment.shader");
+  o3djs.shader.asyncLoadFromURL(gl, "shaders/common-vertex.shader", "shaders/frequency-fragment.shader",
+        function( shader ) {this.frequencyShader = shader; }.bind(this));
+  o3djs.shader.asyncLoadFromURL(gl, "shaders/common-vertex.shader", "shaders/waveform-fragment.shader",
+        function( shader ) {this.waveformShader = shader; }.bind(this));
+  o3djs.shader.asyncLoadFromURL(gl, "shaders/common-vertex.shader", "shaders/sonogram-fragment.shader",
+        function( shader ) {this.sonogramShader = shader; }.bind(this));
 
   if (this.has3DVisualizer)
-    this.sonogram3DShader = o3djs.shader.loadFromURL(gl, "shaders/sonogram-vertex.shader", "shaders/sonogram-fragment.shader");
+    o3djs.shader.asyncLoadFromURL(gl, "shaders/sonogram-vertex.shader", "shaders/sonogram-fragment.shader",
+        function( shader ) {this.sonogram3DShader = shader; }.bind(this));
 }
 
 AnalyserView.prototype.initByteBuffer = function( analyser ) {
@@ -304,11 +312,14 @@ AnalyserView.prototype.drawGL = function() {
     var TEXTURE_HEIGHT = this.TEXTURE_HEIGHT;
     
     var frequencyShader = this.frequencyShader;
+    if (!frequencyShader) return;
     var waveformShader = this.waveformShader;
+    if (!waveformShader) return;
     var sonogramShader = this.sonogramShader;
+    if (!sonogramShader) return;
     var sonogram3DShader = this.sonogram3DShader;
-    
-    
+    if (!sonogram3DShader) return;
+        
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     if (this.analysisType != ANALYSISTYPE_SONOGRAM && this.analysisType != ANALYSISTYPE_3D_SONOGRAM) {

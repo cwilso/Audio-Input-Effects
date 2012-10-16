@@ -104,8 +104,52 @@ o3djs.shader.loadFromURL = function(gl,
   return new o3djs.shader.Shader(gl,
                                  vertexText,
                                  fragmentText);
+};
+
+/**
+ * Sends request for text from an external file. This function is asynchronous.
+ * @param {string} url The url of the external file.
+ * @param {function} callback function with the loaded text.
+ */
+o3djs.shader.sendTextFileRequest = function(url, callback) {
+  var request = new XMLHttpRequest();
+  if (request.overrideMimeType) {
+    request.overrideMimeType('text/plain');
+  }
+  request.open('GET', url, true);
+  request.onload = callback;
+  request.send();
+};
+
+function shaderVertexLoaderCallback( vertexText ) {
+  this.vertexText = vertexText.currentTarget.response;
+  if ( this.fragmentText ) {
+    this.shader = new o3djs.shader.Shader(this.gl, this.vertexText, this.fragmentText);
+    if (this.callback)
+      this.callback(this.shader);
+  }
 }
 
+function shaderFragmentLoaderCallback( fragmentText ) {
+  this.fragmentText = fragmentText.currentTarget.response;
+  if ( this.vertexText ) {
+    this.shader = new o3djs.shader.Shader(this.gl, this.vertexText, this.fragmentText);
+    if (this.callback)
+      this.callback(this.shader);
+  }
+}
+
+o3djs.shader.asyncLoadFromURL = function(gl,
+                                    vertexURL,
+                                    fragmentURL, callback ) {
+  var shaderLoader = {};
+  shaderLoader.gl = gl;
+  shaderLoader.callback = callback;
+
+  var vertexText = o3djs.shader.sendTextFileRequest(vertexURL,shaderVertexLoaderCallback.bind(shaderLoader));
+  var fragmentText = o3djs.shader.sendTextFileRequest(fragmentURL,shaderFragmentLoaderCallback.bind(shaderLoader));
+
+}
 
 /**
  * Helper which convers GLSL names to JavaScript names.

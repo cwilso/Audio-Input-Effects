@@ -87,16 +87,6 @@ function gotStream(stream) {
 */
     audioInput = convertToMono( input );
 
-    analyser1 = audioContext.createAnalyser();
-    analyser1.fftSize = 1024;
-    analyser2 = audioContext.createAnalyser();
-    analyser2.fftSize = 1024;
-
-    analyserView1 = new AnalyserView("view1");
-    analyserView1.initByteBuffer( analyser1 );
-    analyserView2 = new AnalyserView("view2");
-    analyserView2.initByteBuffer( analyser2 );
-
     // create mix gain nodes
     outputMix = audioContext.createGainNode();
     dryGain = audioContext.createGainNode();
@@ -124,8 +114,17 @@ function initAudio() {
     }
     irRRequest.send();
 
-
     o3djs.require('o3djs.shader');
+
+    analyser1 = audioContext.createAnalyser();
+    analyser1.fftSize = 1024;
+    analyser2 = audioContext.createAnalyser();
+    analyser2.fftSize = 1024;
+
+    analyserView1 = new AnalyserView("view1");
+    analyserView1.initByteBuffer( analyser1 );
+    analyserView2 = new AnalyserView("view2");
+    analyserView2.initByteBuffer( analyser2 );
 
     if (!navigator.webkitGetUserMedia)
         return(alert("Error: getUserMedia not supported!"));
