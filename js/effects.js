@@ -29,11 +29,13 @@ var audioInput = null,
     sflrdepth = null,
     sfllfb = null,
     sflrfb = null,
-    rmod = null;
-
-    mddelay = null;
-    mddepth = null;
-    mdspeed = null;
+    rmod = null,
+    mddelay = null,
+    mddepth = null,
+    mdspeed = null,
+    lplfo = null,
+    lplfodepth = null,
+    lplfofilter = null;
 
 
 var rafID = null;
@@ -178,6 +180,13 @@ function changeEffect(effect) {
     sflrdepth = null;
     sfllfb = null;
     sflrfb = null;
+    rmod = null;
+    mddelay = null;
+    mddepth = null;
+    mdspeed = null;
+    lplfo = null;
+    lplfodepth = null;
+    lplfofilter = null;
 
     if (currentEffectNode) 
         currentEffectNode.disconnect();
@@ -224,13 +233,18 @@ function changeEffect(effect) {
         case 10: // Octave doubling
             currentEffectNode = createDoubler();
             break;
-         case 11: // Mod Delay 
+        case 11: // Mod Delay 
             currentEffectNode = createModDelay();
             break;
-        case 12: // LPF LFO
+        case 12: // Ping-pong delay
+            var pingPong = createPingPongDelay(audioContext, (audioInput == realAudioInput), 0.3, 0.4 );
+            pingPong.output.connect( wetGain );
+            currentEffectNode = pingPong.input;
+            break;
+        case 13: // LPF LFO
             currentEffectNode = createFilterLFO();
             break;
-        case 12: // Autowah
+        case 14: // Autowah
             currentEffectNode = createAutowah();
             break;
         default:
@@ -329,17 +343,22 @@ function createFilterLFO() {
     var filter = audioContext.createBiquadFilter();
 
     filter.type = filter.LOWPASS;
-    filter.Q.value = 5;
+    filter.Q.value = parseFloat( document.getElementById("lplfoq").value );
+    lplfofilter = filter;
 
     osc.type = osc.SINE;
-    osc.frequency.value = parseFloat( document.getElementById("lfo").value );
+    osc.frequency.value = parseFloat( document.getElementById("lplfo").value );
     osc.connect( gain );
 
-    filter.frequency.value = 2500;
-    gain.gain.value = 2500;  // this should make the -1 - +1 range of the osc translate to 
-    gain.connect( filter.frequency ); // 0 - 5000Hz
+    filter.frequency.value = 2500;  // center frequency - this is kinda arbitrary.
+    gain.gain.value = 2500 * parseFloat( document.getElementById("lplfodepth").value );
+    // this should make the -1 - +1 range of the osc translate to 0 - 5000Hz, if
+    // depth == 1.
+
+    gain.connect( filter.frequency );
     filter.connect( wetGain );
-    lfo = osc;
+    lplfo = osc;
+    lplfodepth = gain;
 
     osc.noteOn(0);
     return filter;
@@ -609,57 +628,6 @@ function createDoubler() {
     effect = new Jungle( audioContext );
     effect.output.connect( wetGain );
     return effect.input;
-}
-
-
-
-
-var ppDemo = null;
-var isPingPongPlaying = false;
-
-function playPingPong() {
-    if (isPingPongPlaying) {
-        ppDemo.noteOff(0);
-        ppDemo = null;
-        isPingPongPlaying = false;
-        return "play";
-    }
-
-    ppDemo = audioContext.createBufferSource();
-    ppDemo.buffer = glassBuffer;
-    ppDemo.loop = true;
-    
-    var ppMerger = audioContext.createChannelMerger();
-    var ppLeftDelay = audioContext.createDelayNode();
-    var ppRightDelay = audioContext.createDelayNode();
-
-    ppLeftDelay.delayTime.value = 0.3;
-    ppRightDelay.delayTime.value = 0.3;
-    
-    var ppLeftFeedback = audioContext.createGainNode();
-    ppLeftFeedback.gain.value = 0.65;
-    
-    var ppRightFeedback = audioContext.createGainNode();
-    ppRightFeedback.gain.value = 0.65;
-
-    ppLeftDelay.connect(ppLeftFeedback);
-    ppLeftFeedback.connect(ppRightDelay);
-    
-    ppRightDelay.connect(ppRightFeedback);
-    ppRightFeedback.connect(ppLeftDelay);
-    
-    // Re-merge the two delay channels into stereo L/R
-    ppLeftFeedback.connect(ppMerger, 0, 0);
-    ppRightFeedback.connect(ppMerger, 0, 1);
-    
-    ppDemo.connect( audioContext.destination );
-    ppDemo.connect( ppLeftDelay );
-
-    ppMerger.connect( audioContext.destination);
-    ppDemo.noteOn(0);
-    isPingPongPlaying = true;
-
-    return "stop";
 }
 
 function impulseResponse( duration, decay, reverse ) {

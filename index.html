@@ -2,9 +2,11 @@
 <html>
 <head>
 	<title>Live input effects</title>
+	<script src="js/effect.js"></script>
 	<script src="js/waveshaper.js"></script>
 	<script src="js/jungle.js"></script>
 	<script src="js/effects.js"></script>
+	<script src="js/pingpong.js"></script>
 
 	<!-- Visualizer stuff -->
 	<script src="js/visualizer/events.js"></script>
@@ -55,17 +57,10 @@
 		<option>Stereo Flange </option>
 		<option>Octave Doubler </option>
 		<option>Mod Delay </option>
+		<option>Ping-pong delay</option>
+		<option>LFO Filter</option>
 <!--
-		<option>LPFilter LFO (NYI)
 		<option>Autowah (NYI)
-		<option>
-		<option>
-		<option>
-
-Stereo chorus
-Stereo ping-pong delay
-Stereo flange
-
 -->
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
@@ -136,6 +131,20 @@ onInput="crossfade( event.target.value );">
 		Chorus speed: <input id="mdspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (mdspeed) mdspeed.frequency.value = event.target.value;"><br>
 		Chorus delay: <input id="mddelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (mddelay) mddelay.delayTime.value = event.target.value;"><br>
 		Chorus depth: <input id="mddepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (mddepth) mddepth.gain.value = event.target.value;">
+	</div>
+	<div id="pingpongControls">A ping-pong delay - bounces stereo channels.  Most noticeable with mono signal.<br>
+	</div>
+	<div id="lfowahControls">An LFO-controlled low-pass filter.<br>
+		LFO type: 
+		<select id="lplfotype" onchange="if (lplfo) lplfo.type = event.target.value;">
+			<option selected="selected" value="0">SIN</option>
+			<option value="1">SQUARE</option>
+			<option value="2">SAWTOOTH</option>
+			<option value="3">TRIANGLE</option>
+		</select><br>
+		LFO speed: <input id="lplfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lplfo) lplfo.frequency.value = event.target.value;"><br>
+		LFO depth: <input id="lplfodepth" type="range" min="0.0" max="1.0" step="0.1" value="1.0" style="height: 20px; width: 200px;" onInput="if (lplfodepth) lplfodepth.gain.value = 2500 * event.target.value;">
+		Filter Q: <input id="lplfoq" type="range" min="0.0" max="20.0" step="0.5" value="3.0" style="height: 20px; width: 200px;" onInput="if (lplfofilter) lplfofilter.Q.value = event.target.value;">
 	</div>
 
 </div>
