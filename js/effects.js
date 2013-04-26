@@ -38,7 +38,9 @@ var audioInput = null,
     lplfofilter = null,
     awFollower = null,
     awDepth = null,
-    awFilter = null;
+    awFilter = null,
+    ngFollower = null,
+    ngGate = null;
 
 
 var rafID = null;
@@ -193,6 +195,8 @@ function changeEffect(effect) {
     awFollower = null;
     awDepth = null;
     awFilter = null;
+    ngFollower = null;
+    ngGate = null;
 
     if (currentEffectNode) 
         currentEffectNode.disconnect();
@@ -255,6 +259,9 @@ function changeEffect(effect) {
             break;
         case 15: // Autowah
             currentEffectNode = createAutowah();
+            break;
+        case 16: // Noise gate
+            currentEffectNode = createNoiseGate();
             break;
         default:
             break;
@@ -649,6 +656,52 @@ function createAutowah() {
     inputNode.connect(waveshaper);
     inputNode.connect(awFilter);
     return inputNode;
+}
+
+function createNoiseGate() {
+    var inputNode = audioContext.createGain();
+    var rectifier = audioContext.createWaveShaper();
+    ngFollower = audioContext.createBiquadFilter();
+    ngFollower.type = ngFollower.LOWPASS;
+    ngFollower.frequency.value = 10.0;
+
+    var curve = new Float32Array(65536);
+    for (var i=-32768; i<32768; i++)
+        curve[i+32768] = ((i>0)?i:-i)/32768;
+    rectifier.curve = curve;
+    rectifier.connect(ngFollower);
+
+    ngGate = audioContext.createWaveShaper();
+    ngGate.curve = generateNoiseFloorCurve(parseFloat(document.getElementById("ngFloor").value));
+
+    ngFollower.connect(ngGate);
+
+    var gateGain = audioContext.createGain();
+    gateGain.gain.value = 0.0;
+    ngGate.connect( gateGain.gain );
+
+    gateGain.connect( wetGain);
+
+    inputNode.connect(rectifier);
+    inputNode.connect(gateGain);
+    return inputNode;
+}
+
+function generateNoiseFloorCurve( floor ) {
+    // "floor" is 0...1
+
+    var curve = new Float32Array(65536);
+    var mappedFloor = floor * 32768;
+
+    for (var i=0; i<32768; i++) {
+        var value = (i<mappedFloor) ? 0 : 1;
+
+        curve[32768-i] = -value;
+        curve[32768+i] = value;
+    }
+    curve[0] = curve[1]; // fixing up the end.
+
+    return curve;
 }
 
 function impulseResponse( duration, decay, reverse ) {

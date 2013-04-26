@@ -61,6 +61,7 @@
 		<option>LFO Filter</option>
 		<option>Envelope Follower (testing only)</option>
 		<option>Autowah</option>
+		<option>Noise Gate</option>
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
@@ -151,6 +152,10 @@ onInput="crossfade( event.target.value );">
 		Envelope follower filter frequency: <input id="awEF" type="range" min="0.25" max="20" step="0.25" value="10" style="height: 20px; width: 200px;" onInput="if (awFollower) awFollower.frequency.value = event.target.value;"><br>
 		Filter depth (log): <input id="lfo" type="range" min="0" max="4" step="0.1" value="3.5" style="height: 20px; width: 200px;" onInput="if (awDepth) awDepth.gain.value = Math.pow(2,10+parseFloat(event.target.value));"><br>
 		Filter Q: <input id="awQ" type="range" min="0.0" max="20.0" step="0.1" value="5.0" style="height: 20px; width: 200px;" onInput="if (awFilter) awFilter.Q.value = event.target.value;">
+	</div>
+	<div id="noisegateControls">A cheaply-implemented noise gate.  Due to how it's implemented, it WILL have chattering problems.<br>
+		Envelope follower filter frequency: <input id="ngEF" type="range" min="0.25" max="20" step="0.25" value="10" style="height: 20px; width: 200px;" onInput="if (ngFollower) ngFollower.frequency.value = event.target.value;"><br>
+		Floor: <input id="ngFloor" type="range" min="0.0" max="0.1" step="0.001" value="0.01" style="height: 20px; width: 200px;" onInput="if (ngGate)    ngGate.curve = generateNoiseFloorCurve(event.target.value);">
 	</div>
 
 </div>
