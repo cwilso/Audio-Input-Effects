@@ -35,7 +35,10 @@ var audioInput = null,
     mdspeed = null,
     lplfo = null,
     lplfodepth = null,
-    lplfofilter = null;
+    lplfofilter = null,
+    awFollower = null,
+    awDepth = null,
+    awFilter = null;
 
 
 var rafID = null;
@@ -187,6 +190,9 @@ function changeEffect(effect) {
     lplfo = null;
     lplfodepth = null;
     lplfofilter = null;
+    awFollower = null;
+    awDepth = null;
+    awFilter = null;
 
     if (currentEffectNode) 
         currentEffectNode.disconnect();
@@ -619,29 +625,29 @@ function createEnvelopeFollower() {
 function createAutowah() {
     var inputNode = audioContext.createGain();
     var waveshaper = audioContext.createWaveShaper();
-    var lpf1 = audioContext.createBiquadFilter();
-    lpf1.type = lpf1.LOWPASS;
-    lpf1.frequency.value = 10.0;
+    awFollower = audioContext.createBiquadFilter();
+    awFollower.type = awFollower.LOWPASS;
+    awFollower.frequency.value = 10.0;
 
     var curve = new Float32Array(65536);
     for (var i=-32768; i<32768; i++)
         curve[i+32768] = ((i>0)?i:-i)/32768;
     waveshaper.curve = curve;
-    waveshaper.connect(lpf1);
+    waveshaper.connect(awFollower);
 
-    var amp = audioContext.createGain();
-    amp.gain.value = 5000;
-    lpf1.connect(amp);
+    awDepth = audioContext.createGain();
+    awDepth.gain.value = 11585;
+    awFollower.connect(awDepth);
 
-    var filter = audioContext.createBiquadFilter();
-    filter.type = filter.LOWPASS;
-    filter.Q.value = 5;
-    filter.frequency.value = 50;
-    amp.connect(filter.frequency);
-    filter.connect(wetGain);
+    awFilter = audioContext.createBiquadFilter();
+    awFilter.type = awFilter.LOWPASS;
+    awFilter.Q.value = 15;
+    awFilter.frequency.value = 50;
+    awDepth.connect(awFilter.frequency);
+    awFilter.connect(wetGain);
 
     inputNode.connect(waveshaper);
-    inputNode.connect(filter);
+    inputNode.connect(awFilter);
     return inputNode;
 }
 

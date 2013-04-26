@@ -148,6 +148,9 @@ onInput="crossfade( event.target.value );">
 	<div id="envfollowerControls">An envelope follower.  Just for testing.<br>
 	</div>
 	<div id="autowahControls">An autowah effect.<br>
+		Envelope follower filter frequency: <input id="awEF" type="range" min="0.25" max="20" step="0.25" value="10" style="height: 20px; width: 200px;" onInput="if (awFollower) awFollower.frequency.value = event.target.value;"><br>
+		Filter depth (log): <input id="lfo" type="range" min="0" max="4" step="0.1" value="3.5" style="height: 20px; width: 200px;" onInput="if (awDepth) awDepth.gain.value = Math.pow(2,10+parseFloat(event.target.value));"><br>
+		Filter Q: <input id="awQ" type="range" min="0.0" max="20.0" step="0.1" value="5.0" style="height: 20px; width: 200px;" onInput="if (awFilter) awFilter.Q.value = event.target.value;">
 	</div>
 
 </div>
