@@ -244,7 +244,10 @@ function changeEffect(effect) {
         case 13: // LPF LFO
             currentEffectNode = createFilterLFO();
             break;
-        case 14: // Autowah
+        case 14: // Envelope Follower
+            currentEffectNode = createEnvelopeFollower();
+            break;
+        case 15: // Autowah
             currentEffectNode = createAutowah();
             break;
         default:
@@ -382,38 +385,6 @@ function createRingmod() {
 }
 
 var awg = null;
-
-function createAutowah() {
-    var dyn = audioContext.createDynamicsCompressor();
-    var gain = audioContext.createGainNode();
-    var gain2 = audioContext.createGainNode();
-    var filter = audioContext.createBiquadFilter();
-    var input = audioContext.createGainNode();
-
-    dyn.threshold.value = -36.0;
-    dyn.knee.value = 0.0;
-    dyn.ratio.value = 20.0;
-    dyn.attack.value = 0.0;
-    dyn.release.value = 0.01;
-
-    gain2.gain.value = -70;
-    gain.gain = dyn.reduction;  // will go 0 - -36
-    gain.connect( gain2 );
-
-    filter.type = filter.LOWPASS;
-    filter.Q.value = 5;
-    filter.frequency.value = 2500;
-
-    gain2.connect( filter.frequency ); // 0 - 5000Hz
-    awg = gain;
-
-    filter.connect( wetGain );
-    input.connect( filter );
-    input.connect( dyn );
-
-    return input;
-}
-
 
 function createChorus() {
     var delayNode = audioContext.createDelayNode();
@@ -628,6 +599,50 @@ function createDoubler() {
     effect = new Jungle( audioContext );
     effect.output.connect( wetGain );
     return effect.input;
+}
+
+function createEnvelopeFollower() {
+    var waveshaper = audioContext.createWaveShaper();
+    var lpf1 = audioContext.createBiquadFilter();
+    lpf1.type = lpf1.LOWPASS;
+    lpf1.frequency.value = 10.0;
+
+    var curve = new Float32Array(65536);
+    for (var i=-32768; i<32768; i++)
+        curve[i+32768] = ((i>0)?i:-i)/32768;
+    waveshaper.curve = curve;
+    waveshaper.connect(lpf1);
+    lpf1.connect(wetGain);
+    return waveshaper;
+}
+
+function createAutowah() {
+    var inputNode = audioContext.createGain();
+    var waveshaper = audioContext.createWaveShaper();
+    var lpf1 = audioContext.createBiquadFilter();
+    lpf1.type = lpf1.LOWPASS;
+    lpf1.frequency.value = 10.0;
+
+    var curve = new Float32Array(65536);
+    for (var i=-32768; i<32768; i++)
+        curve[i+32768] = ((i>0)?i:-i)/32768;
+    waveshaper.curve = curve;
+    waveshaper.connect(lpf1);
+
+    var amp = audioContext.createGain();
+    amp.gain.value = 5000;
+    lpf1.connect(amp);
+
+    var filter = audioContext.createBiquadFilter();
+    filter.type = filter.LOWPASS;
+    filter.Q.value = 5;
+    filter.frequency.value = 50;
+    amp.connect(filter.frequency);
+    filter.connect(wetGain);
+
+    inputNode.connect(waveshaper);
+    inputNode.connect(filter);
+    return inputNode;
 }
 
 function impulseResponse( duration, decay, reverse ) {

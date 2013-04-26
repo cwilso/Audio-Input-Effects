@@ -59,9 +59,8 @@
 		<option>Mod Delay </option>
 		<option>Ping-pong delay</option>
 		<option>LFO Filter</option>
-<!--
-		<option>Autowah (NYI)
--->
+		<option>Envelope Follower (testing only)</option>
+		<option>Autowah</option>
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
@@ -145,6 +144,10 @@ onInput="crossfade( event.target.value );">
 		LFO speed: <input id="lplfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lplfo) lplfo.frequency.value = event.target.value;"><br>
 		LFO depth: <input id="lplfodepth" type="range" min="0.0" max="1.0" step="0.1" value="1.0" style="height: 20px; width: 200px;" onInput="if (lplfodepth) lplfodepth.gain.value = 2500 * event.target.value;">
 		Filter Q: <input id="lplfoq" type="range" min="0.0" max="20.0" step="0.5" value="3.0" style="height: 20px; width: 200px;" onInput="if (lplfofilter) lplfofilter.Q.value = event.target.value;">
+	</div>
+	<div id="envfollowerControls">An envelope follower.  Just for testing.<br>
+	</div>
+	<div id="autowahControls">An autowah effect.<br>
 	</div>
 
 </div>
