@@ -263,6 +263,24 @@ function changeEffect(effect) {
         case 16: // Noise gate
             currentEffectNode = createNoiseGate();
             break;
+        case 17: // Wah Bass
+            var pingPong = createPingPongDelay(audioContext, (audioInput == realAudioInput), 0.3, 0.4 );
+            pingPong.output.connect( wetGain );
+            pingPong.input.connect(wetGain);
+            var tempWetGain = wetGain;
+            wetGain = pingPong.input;
+            wetGain = createAutowah();
+            currentEffectNode = createDoubler();
+            wetGain = tempWetGain;
+            break;
+        case 18: // Distorted Wah Chorus
+            var tempWetGain = wetGain;
+            wetGain = createStereoChorus();
+            wetGain = createDistortion();
+            currentEffectNode = createAutowah();
+            wetGain = tempWetGain;
+            waveshaper.setDrive(20);
+            break;
         default:
             break;
     }

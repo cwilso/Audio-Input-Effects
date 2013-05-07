@@ -62,6 +62,8 @@
 		<option>Envelope Follower (testing only)</option>
 		<option>Autowah</option>
 		<option>Noise Gate</option>
+		<option>Wah Bass</option>
+		<option>Distorted Wah Chorus</option>
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
@@ -86,7 +88,7 @@ onInput="crossfade( event.target.value );">
 	<div id="gainLFOControls">This effect chops up the sound by using a low-frequency oscillator (LFO) to control the
 		gain.<br>
 		LFO type: 
-		<select id="lfotype" onchange="if (lfotype) lfotype.type = event.target.value;">
+		<select id="lfotype" onchange="if (lfotype) lfotype.type = parseInt(event.target.value);">
 			<option selected="selected" value="0">SIN</option>
 			<option value="1">SQUARE</option>
 			<option value="2">SAWTOOTH</option>
@@ -136,7 +138,7 @@ onInput="crossfade( event.target.value );">
 	</div>
 	<div id="lfowahControls">An LFO-controlled low-pass filter.<br>
 		LFO type: 
-		<select id="lplfotype" onchange="if (lplfo) lplfo.type = event.target.value;">
+		<select id="lplfotype" onchange="if (lplfo) lplfo.type = parseInt(event.target.value);">
 			<option selected="selected" value="0">SIN</option>
 			<option value="1">SQUARE</option>
 			<option value="2">SAWTOOTH</option>
@@ -156,6 +158,10 @@ onInput="crossfade( event.target.value );">
 	<div id="noisegateControls">A cheaply-implemented noise gate.  Due to how it's implemented, it WILL have chattering problems.<br>
 		Envelope follower filter frequency: <input id="ngEF" type="range" min="0.25" max="20" step="0.25" value="10" style="height: 20px; width: 200px;" onInput="if (ngFollower) ngFollower.frequency.value = event.target.value;"><br>
 		Floor: <input id="ngFloor" type="range" min="0.0" max="0.1" step="0.001" value="0.01" style="height: 20px; width: 200px;" onInput="if (ngGate)    ngGate.curve = generateNoiseFloorCurve(event.target.value);">
+	</div>
+	<div id="wahbassControls">Octave-down + wah + ping-pong.<br>
+	</div>
+	<div id="wahbassControls">Wah + distortion + stereo chorus.<br>
 	</div>
 
 </div>
