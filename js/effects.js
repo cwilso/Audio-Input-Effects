@@ -264,7 +264,7 @@ function changeEffect(effect) {
             currentEffectNode = createNoiseGate();
             break;
         case 17: // Wah Bass
-            var pingPong = createPingPongDelay(audioContext, (audioInput == realAudioInput), 0.3, 0.4 );
+            var pingPong = createPingPongDelay(audioContext, (audioInput == realAudioInput), 0.5, 0.5 );
             pingPong.output.connect( wetGain );
             pingPong.input.connect(wetGain);
             var tempWetGain = wetGain;
