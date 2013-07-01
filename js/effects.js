@@ -1,4 +1,4 @@
-var audioContext = new webkitAudioContext();
+var audioContext = new AudioContext();
 var audioInput = null,
     realAudioInput = null,
     effectInput = null,
@@ -100,10 +100,10 @@ function gotStream(stream) {
     audioInput = convertToMono( input );
 
     // create mix gain nodes
-    outputMix = audioContext.createGainNode();
-    dryGain = audioContext.createGainNode();
-    wetGain = audioContext.createGainNode();
-    effectInput = audioContext.createGainNode();
+    outputMix = audioContext.createGain();
+    dryGain = audioContext.createGain();
+    wetGain = audioContext.createGain();
+    effectInput = audioContext.createGain();
     audioInput.connect(dryGain);
     audioInput.connect(analyser1);
     audioInput.connect(effectInput);
@@ -138,10 +138,13 @@ function initAudio() {
     analyserView2 = new AnalyserView("view2");
     analyserView2.initByteBuffer( analyser2 );
 
-    if (!navigator.webkitGetUserMedia)
+    if (!navigator.getUserMedia)
+        navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+    if (!navigator.getUserMedia)
         return(alert("Error: getUserMedia not supported!"));
 
-    navigator.webkitGetUserMedia({audio:true}, gotStream, function(e) {
+    navigator.getUserMedia({audio:true}, gotStream, function(e) {
             alert('Error getting audio');
             console.log(e);
         });
@@ -313,11 +316,11 @@ function createTelephonizer() {
 }
 
 function createDelay() {
-    var delayNode = audioContext.createDelayNode();
+    var delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("dtime").value );
     dtime = delayNode;
 
-    var gainNode = audioContext.createGainNode();
+    var gainNode = audioContext.createGain();
     gainNode.gain.value = parseFloat( document.getElementById("dregen").value );
     dregen = gainNode;
 
@@ -348,8 +351,8 @@ function createDistortion() {
 
 function createGainLFO() {
     var osc = audioContext.createOscillator();
-    var gain = audioContext.createGainNode();
-    var depth = audioContext.createGainNode();
+    var gain = audioContext.createGain();
+    var depth = audioContext.createGain();
 
     osc.type = parseInt(document.getElementById("lfotype").value);
     osc.frequency.value = parseFloat( document.getElementById("lfo").value );
@@ -366,14 +369,14 @@ function createGainLFO() {
     lfodepth = depth;
 
 
-    osc.noteOn(0);
+    osc.start(0);
     return gain;
 }
 
 function createFilterLFO() {
     var osc = audioContext.createOscillator();
-    var gainMult = audioContext.createGainNode();
-    var gain = audioContext.createGainNode();
+    var gainMult = audioContext.createGain();
+    var gain = audioContext.createGain();
     var filter = audioContext.createBiquadFilter();
 
     filter.type = filter.LOWPASS;
@@ -394,13 +397,13 @@ function createFilterLFO() {
     lplfo = osc;
     lplfodepth = gain;
 
-    osc.noteOn(0);
+    osc.start(0);
     return filter;
 }
 
 function createRingmod() {
-    var gain = audioContext.createGainNode();
-    var ring = audioContext.createGainNode();
+    var gain = audioContext.createGain();
+    var ring = audioContext.createGain();
     var osc = audioContext.createOscillator();
 
     osc.type = osc.SINE;
@@ -411,21 +414,21 @@ function createRingmod() {
     ring.gain.value = 0.0;
     gain.connect(ring);
     ring.connect(wetGain);
-    osc.noteOn(0);
+    osc.start(0);
     return gain;
 }
 
 var awg = null;
 
 function createChorus() {
-    var delayNode = audioContext.createDelayNode();
+    var delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("cdelay").value );
     cdelay = delayNode;
 
-    var inputNode = audioContext.createGainNode();
+    var inputNode = audioContext.createGain();
 
     var osc = audioContext.createOscillator();
-    var gain = audioContext.createGainNode();
+    var gain = audioContext.createGain();
 
     gain.gain.value = parseFloat( document.getElementById("cdepth").value ); // depth of change to the delay:
     cdepth = gain;
@@ -442,20 +445,20 @@ function createChorus() {
     delayNode.connect( wetGain );
 
 
-    osc.noteOn(0);
+    osc.start(0);
 
     return inputNode;
 }
 
 function createFlange() {
-    var delayNode = audioContext.createDelayNode();
+    var delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("fldelay").value );
     fldelay = delayNode;
 
-    var inputNode = audioContext.createGainNode();
-    var feedback = audioContext.createGainNode();
+    var inputNode = audioContext.createGain();
+    var feedback = audioContext.createGain();
     var osc = audioContext.createOscillator();
-    var gain = audioContext.createGainNode();
+    var gain = audioContext.createGain();
     gain.gain.value = parseFloat( document.getElementById("fldepth").value );
     fldepth = gain;
 
@@ -475,7 +478,7 @@ function createFlange() {
     delayNode.connect( feedback );
     feedback.connect( inputNode );
 
-    osc.noteOn(0);
+    osc.start(0);
 
     return inputNode;
 }
@@ -483,13 +486,13 @@ function createFlange() {
 function createStereoChorus() {
     var splitter = audioContext.createChannelSplitter(2);
     var merger = audioContext.createChannelMerger(2);
-    var inputNode = audioContext.createGainNode();
+    var inputNode = audioContext.createGain();
 
     inputNode.connect( splitter );
     inputNode.connect( wetGain );
 
-    var delayLNode = audioContext.createDelayNode();
-    var delayRNode = audioContext.createDelayNode();
+    var delayLNode = audioContext.createDelay();
+    var delayRNode = audioContext.createDelay();
     delayLNode.delayTime.value = parseFloat( document.getElementById("scdelay").value );
     delayRNode.delayTime.value = parseFloat( document.getElementById("scdelay").value );
     scldelay = delayLNode;
@@ -498,8 +501,8 @@ function createStereoChorus() {
     splitter.connect( delayRNode, 1 );
 
     var osc = audioContext.createOscillator();
-    scldepth = audioContext.createGainNode();
-    scrdepth = audioContext.createGainNode();
+    scldepth = audioContext.createGain();
+    scrdepth = audioContext.createGain();
 
     scldepth.gain.value = parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
     scrdepth.gain.value = - parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
@@ -518,7 +521,7 @@ function createStereoChorus() {
     delayRNode.connect( merger, 0, 1 );
     merger.connect( wetGain );
 
-    osc.noteOn(0);
+    osc.start(0);
 
     return inputNode;
 }
@@ -533,25 +536,25 @@ function createStereoChorus() {
 */
 function createModDelay() {
     // Create input node for incoming audio
-    var inputNode = audioContext.createGainNode();
+    var inputNode = audioContext.createGain();
 
     // SET UP DELAY NODE
-    var delayNode = audioContext.createDelayNode();
+    var delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("mdtime").value );
     mdtime = delayNode;
 
-    var feedbackGainNode = audioContext.createGainNode();
+    var feedbackGainNode = audioContext.createGain();
     feedbackGainNode.gain.value = parseFloat( document.getElementById("mdfeedback").value );
     mdfeedback = feedbackGainNode;
 
 
     // SET UP CHORUS NODE
-    var chorus = audioContext.createDelayNode();
+    var chorus = audioContext.createDelay();
     chorus.delayTime.value = parseFloat( document.getElementById("mddelay").value );
     mddelay = chorus;
 
     var osc  = audioContext.createOscillator();
-    var chorusRateGainNode = audioContext.createGainNode();
+    var chorusRateGainNode = audioContext.createGain();
     chorusRateGainNode.gain.value = parseFloat( document.getElementById("mddepth").value ); // depth of change to the delay:
     mddepth = chorusRateGainNode;
 
@@ -572,7 +575,7 @@ function createModDelay() {
     feedbackGainNode.connect( wetGain );
 
 
-    osc.noteOn(0);
+    osc.start(0);
 
     return inputNode;
 }
@@ -580,14 +583,14 @@ function createModDelay() {
 function createStereoFlange() {
     var splitter = audioContext.createChannelSplitter(2);
     var merger = audioContext.createChannelMerger(2);
-    var inputNode = audioContext.createGainNode();
-    sfllfb = audioContext.createGainNode();
-    sflrfb = audioContext.createGainNode();
+    var inputNode = audioContext.createGain();
+    sfllfb = audioContext.createGain();
+    sflrfb = audioContext.createGain();
     sflspeed = audioContext.createOscillator();
-    sflldepth = audioContext.createGainNode();
-    sflrdepth = audioContext.createGainNode();
-    sflldelay = audioContext.createDelayNode();
-    sflrdelay = audioContext.createDelayNode();
+    sflldepth = audioContext.createGain();
+    sflrdepth = audioContext.createGain();
+    sflldelay = audioContext.createDelay();
+    sflrdelay = audioContext.createDelay();
 
 
     sfllfb.gain.value = sflrfb.gain.value = parseFloat( document.getElementById("sflfb").value );
@@ -621,7 +624,7 @@ function createStereoFlange() {
     sflrdelay.connect( merger, 0, 1 );
     merger.connect( wetGain );
 
-    sflspeed.noteOn(0);
+    sflspeed.start(0);
 
     return inputNode;
 }
