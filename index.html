@@ -25,15 +25,17 @@
 	<script src="js/visualizer/shader.js"></script>
 
 	<style>
-	body { font: 14pt Arial, sans-serif; background: beige; }
+	body { font: 14pt Arial, sans-serif; background: #333; color: gray; }
 	select { font: 14pt Arial, sans-serif; }
-	div#controls div { display:none; border: 1px solid gray; border-radius: 5px; padding: 10px; width: 728px;}
+	div#controls div { display:none; border: 1px solid darkgray; border-radius: 5px; padding: 10px; width: 728px;}
 	div#controls div.display { display: block; }
 	#controls { padding-top: 24px;}
 	#effectMix { padding-top: 12px;}
+	#arranger { width:750px; margin: 25px auto}
 	</style>
 </head>
 <body>
+	<div id="arranger">
 	<canvas id="view1" width="750" height="200"></canvas><br>
 	<canvas id="view2" width="750" height="200"></canvas>
 	<div>
@@ -69,7 +71,7 @@
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
-&nbsp;&nbsp;Mono-ize input: <input type="checkbox" checked onchange="toggleMono()">
+&nbsp;&nbsp;Mono input: <input type="checkbox" checked onchange="toggleMono()">
 <!--          &nbsp;&nbsp;60Hz filter: <input type="checkbox" checked onchange="toggleFilter()"> -->
 </div>
 <div id="controls">
@@ -170,7 +172,7 @@ onInput="crossfade( event.target.value );">
 <!--
       <button onclick="this.innerText = toggleSample();">play</button>
   -->
-
+</div>
   <a href="https://github.com/cwilso/Audio-Input-Effects" style="position: absolute; z-index:2; top: 0; right: 0; border: 0;"><img src="img/forkme.png" alt="Fork me on GitHub"></a>
 
 <script type="text/javascript">

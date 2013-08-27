@@ -18,5 +18,5 @@ void main()
     }
     float x = texCoord.y / sample.a;
     x = x * x * x;
-    gl_FragColor = mix(foregroundColor, backgroundColor, x);
+    gl_FragColor = vec4(1.0); //mix(foregroundColor, backgroundColor, x);
 }

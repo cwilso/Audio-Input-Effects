@@ -4,6 +4,7 @@ precision mediump float;
 #endif
 
 varying vec2 texCoord;
+varying vec3 color;
 
 uniform sampler2D frequencyData;
 uniform vec4 foregroundColor;
@@ -22,6 +23,5 @@ void main()
     // Fade out the mesh close to the edges
     float fade = pow(cos((1.0 - texCoord.y) * 0.5 * 3.1415926535), 0.5);
     k *= fade;
-    vec4 color = k * vec4(0,0,0,1) + (1.0 - k) * backgroundColor;
-    gl_FragColor = color;
+    gl_FragColor = backgroundColor + vec4(k * color, 1.0);
 }

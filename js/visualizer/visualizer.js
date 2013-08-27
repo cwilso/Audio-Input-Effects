@@ -68,14 +68,12 @@ AnalyserView = function(canvasElementID) {
     this.sonogram3DShader = 0;
 
     // Background color
-    this.backgroundColor = [191.0 / 255.0,
-                           169.0 / 255.0,
-                           135.0 / 255.0,
-                           1.0];
+    this.backgroundColor = [0.1, 0.1, 0.1, 1.0];
+
     // Foreground color
-    this.foregroundColor = [63.0 / 255.0,
-                           39.0 / 255.0,
-                           0.0 / 255.0,
+    this.foregroundColor = [0.0 / 255.0,
+                           175.0 / 255.0,
+                           255.0 / 255.0,
                            1.0];
 
 
