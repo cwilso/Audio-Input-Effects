@@ -57,8 +57,11 @@ function convertToMono( input ) {
     return merger;
 }
 
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
+window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
+
 function cancelAnalyserUpdates() {
-    window.webkitCancelAnimationFrame( rafID );
+    window.cancelAnimationFrame( rafID );
     rafID = null;
 }
 
@@ -66,7 +69,7 @@ function updateAnalysers(time) {
     analyserView1.doFrequencyAnalysis( analyser1 );
     analyserView2.doFrequencyAnalysis( analyser2 );
     
-    rafID = window.webkitRequestAnimationFrame( updateAnalysers );
+    rafID = window.requestAnimationFrame( updateAnalysers );
 }
 
 function toggleMono() {

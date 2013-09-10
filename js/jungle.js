@@ -76,8 +76,10 @@ function createDelayTimeBuffer(context, activeTime, fadeTime) {
     
     // 1st part of cycle
     for (var i = 0; i < length1; ++i) {
-        // for octave-up, change to "(length1-i)/length"
+        // This line does octave-down transpose
         p[i] = i / length1;
+        // This line does octave-up transpose
+//        p[i] = (length1-i)/length;
     }
 
     // 2nd part
