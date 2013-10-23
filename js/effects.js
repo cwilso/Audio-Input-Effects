@@ -72,6 +72,17 @@ function updateAnalysers(time) {
     rafID = window.requestAnimationFrame( updateAnalysers );
 }
 
+var lpInputFilter=null;
+
+// this is ONLY because we have massive feedback without filtering out
+// the top end in live speaker scenarios.
+function createLPInputFilter(output) {
+    lpInputFilter = audioContext.createBiquadFilter();
+    lpInputFilter.frequency.value = 2048;
+    return lpInputFilter;
+}
+
+
 function toggleMono() {
     if (audioInput != realAudioInput) {
         audioInput.disconnect();
@@ -82,10 +93,13 @@ function toggleMono() {
         audioInput = convertToMono( realAudioInput );
     }
 
-    audioInput.connect(dryGain);
-    audioInput.connect(analyser1);
-    audioInput.connect(effectInput);
+    createLPInputFilter(audioInput);
+    lpInputFilter.connect(dryGain);
+    lpInputFilter.connect(analyser1);
+    lpInputFilter.connect(effectInput);
 }
+
+var useFeedbackReduction = true;
 
 function gotStream(stream) {
     // Create an AudioNode from the stream.
@@ -102,6 +116,11 @@ function gotStream(stream) {
 */
     audioInput = convertToMono( input );
 
+    if (useFeedbackReduction) {
+        audioInput.connect( createLPInputFilter() );
+        audioInput = lpInputFilter;
+        
+    }
     // create mix gain nodes
     outputMix = audioContext.createGain();
     dryGain = audioContext.createGain();
