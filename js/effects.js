@@ -306,6 +306,9 @@ function changeEffect(effect) {
             wetGain = tempWetGain;
             waveshaper.setDrive(20);
             break;
+        case 19: // Vibrato
+            currentEffectNode = createVibrato();
+            break;
         default:
             break;
     }
@@ -467,6 +470,32 @@ function createChorus() {
     delayNode.connect( wetGain );
 
 
+    osc.start(0);
+
+    return inputNode;
+}
+
+function createVibrato() {
+    var delayNode = audioContext.createDelay();
+    delayNode.delayTime.value = parseFloat( document.getElementById("vdelay").value );
+    cdelay = delayNode;
+
+    var inputNode = audioContext.createGain();
+
+    var osc = audioContext.createOscillator();
+    var gain = audioContext.createGain();
+
+    gain.gain.value = parseFloat( document.getElementById("vdepth").value ); // depth of change to the delay:
+    cdepth = gain;
+
+    osc.type = osc.SINE;
+    osc.frequency.value = parseFloat( document.getElementById("vspeed").value );
+    cspeed = osc;
+
+    osc.connect(gain);
+    gain.connect(delayNode.delayTime);
+    inputNode.connect( delayNode );
+    delayNode.connect( wetGain );
     osc.start(0);
 
     return inputNode;
