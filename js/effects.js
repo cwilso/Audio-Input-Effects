@@ -265,8 +265,8 @@ function changeEffect(effect) {
         case 9: // Stereo Flange
             currentEffectNode = createStereoFlange();
             break;
-        case 10: // Octave doubling
-            currentEffectNode = createDoubler();
+        case 10: // Pitch shifting
+            currentEffectNode = createPitchShifter();
             break;
         case 11: // Mod Delay 
             currentEffectNode = createModDelay();
@@ -295,7 +295,7 @@ function changeEffect(effect) {
             var tempWetGain = wetGain;
             wetGain = pingPong.input;
             wetGain = createAutowah();
-            currentEffectNode = createDoubler();
+            currentEffectNode = createPitchShifter();
             wetGain = tempWetGain;
             break;
         case 18: // Distorted Wah Chorus
@@ -341,7 +341,11 @@ function createTelephonizer() {
 }
 
 function createDelay() {
-    var delayNode = audioContext.createDelay();
+    var delayNode = null;
+    if (window.location.search.substring(1) == "webkit")
+        delayNode = audioContext.createDelayNode();
+    else
+        delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("dtime").value );
     dtime = delayNode;
 
@@ -680,7 +684,7 @@ function createStereoFlange() {
     return inputNode;
 }
 
-function createDoubler() {
+function createPitchShifter() {
     effect = new Jungle( audioContext );
     effect.output.connect( wetGain );
     return effect.input;

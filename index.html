@@ -59,7 +59,7 @@
 		<option>Ring mod </option>
 		<option>Stereo Chorus </option>
 		<option>Stereo Flange </option>
-		<option>Octave Doubler </option>
+		<option>Pitch Shifter </option>
 		<option>Mod Delay </option>
 		<option>Ping-pong delay</option>
 		<option>LFO Filter</option>
@@ -127,8 +127,8 @@ onInput="crossfade( event.target.value );">
 		Flanger depth: <input id="sfldepth" type="range" min="0.0005" max="0.02" step="0.00025" value="0.005" style="height: 20px; width: 200px;" onInput="if (sflldepth) sflldepth.gain.value = event.target.value; if (sflrdepth) sflrdepth.gain.value = -1.0 * event.target.value;"><br>
 		Flanger feedback: <input id="sflfb" type="range" min="0" max="1" step="0.01" value="0.9" style="height: 20px; width: 200px;" onInput="if (sfllfb) sfllfb.gain.value = event.target.value; if (sflrfb) sflrfb.gain.value = event.target.value;">
 	</div>
-	<div id="doublerControls">An octave-doubling effect, using sample-accurate delay ramping.<br>
-		<!-- TODO: doesn't need to be just octave, should be able to control. -->
+	<div id="doublerControls">A pitch-shifting effect, using sample-accurate delay ramping.  Defaults to one octave down.<br>
+		Pitch-shift: <input id="octpitch" type="range" min="-1" max="1" step="0.05" value="-1" style="height: 20px; width: 200px;" onInput="if (effect.setPitchOffset) effect.setPitchOffset(event.target.value);"><br>
 	</div>
 	<div id="modDelayControls">A delay with a basic chorus effect.<br>
 		Delay time: <input id="mdtime" type="range" min="0.01" max="3" step="0.01" value="0.15" style="height: 20px; width: 200px" onInput="if (mdtime) mdtime.delayTime.value = event.target.value;"><br>
