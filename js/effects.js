@@ -138,6 +138,40 @@ function gotStream(stream) {
     updateAnalysers();
 }
 
+function changeInput(){
+  if (!!window.stream) {
+    window.stream.stop();
+  }
+  var audioSelect = document.getElementById("audioinput");
+  var audioSource = audioSelect.value;
+  var constraints = {
+    audio: {
+      optional: [{sourceId: audioSource}]
+    }
+  };
+  navigator.getUserMedia(constraints, gotStream, function(e) {
+            alert('Error getting audio');
+            console.log(e);
+        });
+}
+
+function gotSources(sourceInfos) {
+    var audioSelect = document.getElementById("audioinput");
+    while (audioSelect.firstChild)
+        audioSelect.removeChild(audioSelect.firstChild);
+
+    for (var i = 0; i != sourceInfos.length; ++i) {
+        var sourceInfo = sourceInfos[i];
+        if (sourceInfo.kind === 'audio') {
+            var option = document.createElement("option");
+            option.value = sourceInfo.id;
+            option.text = sourceInfo.label || 'input ' + (audioSelect.length + 1);
+            audioSelect.appendChild(option);
+        }
+    }
+    audioSelect.onchange = changeInput;
+}
+
 function initAudio() {
     var irRRequest = new XMLHttpRequest();
     irRRequest.open("GET", "sounds/cardiod-rear-levelled.wav", true);
@@ -170,6 +204,12 @@ function initAudio() {
             alert('Error getting audio');
             console.log(e);
         });
+
+    if (typeof MediaStreamTrack === 'undefined'){
+        console.log("This browser does not support MediaStreamTrack, so doesn't support selecting sources.\n\nTry Chrome Canary.");
+    } else {
+        MediaStreamTrack.getSources(gotSources);
+    }
 }
 
 window.addEventListener('load', initAudio );

@@ -35,6 +35,12 @@
 	</style>
 </head>
 <body>
+	<div>Input:
+		<select id="audioinput" onchange="changeInput(this.selectedIndex);">
+			<option>default (selection not supported)</option>
+		</select>
+	</div>
+
 	<div id="arranger">
 	<canvas id="view1" width="750" height="200"></canvas><br>
 	<canvas id="view2" width="750" height="200"></canvas>
