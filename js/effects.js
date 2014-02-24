@@ -62,7 +62,8 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame;
 
 function cancelAnalyserUpdates() {
-    window.cancelAnimationFrame( rafID );
+    if (rafID)
+        window.cancelAnimationFrame( rafID );
     rafID = null;
 }
 
@@ -135,7 +136,8 @@ function gotStream(stream) {
     outputMix.connect( audioContext.destination);
     outputMix.connect(analyser2);
     crossfade(1.0);
-    changeEffect(0);
+    changeEffect();
+    cancelAnalyserUpdates();
     updateAnalysers();
 }
 
@@ -211,6 +213,8 @@ function initAudio() {
     } else {
         MediaStreamTrack.getSources(gotSources);
     }
+
+    document.getElementById("effect").onchange=changeEffect;
 }
 
 window.addEventListener('load', initAudio );
@@ -227,7 +231,7 @@ function crossfade(value) {
 
 var lastEffect = -1;
 
-function changeEffect(effect) {
+function changeEffect() {
     lfo = null;
     dtime = null;
     dregen = null;
@@ -269,6 +273,7 @@ function changeEffect(effect) {
     if (effectInput)
         effectInput.disconnect();
 
+    var effect = document.getElementById("effect").selectedIndex;
     var effectControls = document.getElementById("controls");
     if (lastEffect > -1)
         effectControls.children[lastEffect].classList.remove("display");
