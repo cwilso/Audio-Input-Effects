@@ -99,8 +99,8 @@ var bufferTime = 0.100;
 function Jungle(context) {
     this.context = context;
     // Create nodes for the input and output of this "module".
-    var input = context.createGainNode();
-    var output = context.createGainNode();
+    var input = context.createGain();
+    var output = context.createGain();
     this.input = input;
     this.output = output;
     
@@ -121,11 +121,11 @@ function Jungle(context) {
     mod4.loop = true;
 
     // for switching between oct-up and oct-down
-    var mod1Gain = context.createGainNode();
-    var mod2Gain = context.createGainNode();
-    var mod3Gain = context.createGainNode();
+    var mod1Gain = context.createGain();
+    var mod2Gain = context.createGain();
+    var mod3Gain = context.createGain();
     mod3Gain.gain.value = 0;
-    var mod4Gain = context.createGainNode();
+    var mod4Gain = context.createGain();
     mod4Gain.gain.value = 0;
 
     mod1.connect(mod1Gain);
@@ -134,11 +134,11 @@ function Jungle(context) {
     mod4.connect(mod4Gain);
 
     // Delay amount for changing pitch.
-    var modGain1 = context.createGainNode();
-    var modGain2 = context.createGainNode();
+    var modGain1 = context.createGain();
+    var modGain2 = context.createGain();
 
-    var delay1 = context.createDelayNode();
-    var delay2 = context.createDelayNode();
+    var delay1 = context.createDelay();
+    var delay2 = context.createDelay();
     mod1Gain.connect(modGain1);
     mod2Gain.connect(modGain2);
     mod3Gain.connect(modGain1);
@@ -155,8 +155,8 @@ function Jungle(context) {
     fade1.loop = true;
     fade2.loop = true;
 
-    var mix1 = context.createGainNode();
-    var mix2 = context.createGainNode();
+    var mix1 = context.createGain();
+    var mix2 = context.createGain();
     mix1.gain.value = 0;
     mix2.gain.value = 0;
 
@@ -200,8 +200,8 @@ function Jungle(context) {
 }
 
 Jungle.prototype.setDelay = function(delayTime) {
-    this.modGain1.gain.setTargetValueAtTime(0.5*delayTime, 0, 0.010);
-    this.modGain2.gain.setTargetValueAtTime(0.5*delayTime, 0, 0.010);
+    this.modGain1.gain.setTargetAtTime(0.5*delayTime, 0, 0.010);
+    this.modGain2.gain.setTargetAtTime(0.5*delayTime, 0, 0.010);
 }
 
 var previousPitch = -1;

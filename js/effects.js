@@ -389,7 +389,7 @@ function createTelephonizer() {
 function createDelay() {
     var delayNode = null;
     if (window.location.search.substring(1) == "webkit")
-        delayNode = audioContext.createDelayNode();
+        delayNode = audioContext.createDelay();
     else
         delayNode = audioContext.createDelay();
     delayNode.delayTime.value = parseFloat( document.getElementById("dtime").value );

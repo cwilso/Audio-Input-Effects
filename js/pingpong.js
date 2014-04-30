@@ -1,10 +1,10 @@
 function createPingPongDelay(context, isTrueStereo, delayTime, feedback) {
     var effect = new Effect();
     var merger = context.createChannelMerger(2);
-    var leftDelay = context.createDelayNode();
-    var rightDelay = context.createDelayNode();
-    var leftFeedback = audioContext.createGainNode();
-    var rightFeedback = audioContext.createGainNode();
+    var leftDelay = context.createDelay();
+    var rightDelay = context.createDelay();
+    var leftFeedback = audioContext.createGain();
+    var rightFeedback = audioContext.createGain();
     var splitter = context.createChannelSplitter(2);
 
     // Split the stereo signal.
