@@ -75,6 +75,7 @@
 		<option>Wah Bass</option>
 		<option>Distorted Wah Chorus</option>
 		<option>Vibrato</option>
+		<option>BitCrusher</option>
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
@@ -178,6 +179,10 @@ onInput="crossfade( event.target.value );">
 		Vibrato speed: <input id="vspeed" type="range" min="0.5" max="15" step="0.25" value="3.5" style="height: 20px; width: 200px;" onInput="if (cspeed) cspeed.frequency.value = event.target.value;"><br>
 		Vibrato delay: <input id="vdelay" type="range" min="0.005" max="0.055" step="0.005" value="0.03" style="height: 20px; width: 200px;" onInput="if (cdelay) cdelay.delayTime.value = event.target.value;"><br>
 		Vibrato depth: <input id="vdepth" type="range" min="0.0005" max="0.004" step="0.0005" value="0.002" style="height: 20px; width: 200px;" onInput="if (cdepth) cdepth.gain.value = event.target.value;">
+	</div>
+	<div id="bitcrusherControls">Bitcrusher effect.<br>
+		Bit depth: <input id="bitdepth" type="range" min="1" max="16" step="0.25" value="8" style="height: 20px; width: 200px;" onInput="btcrBits = parseInt(event.target.value);"><br>
+		Frequency stepping: <input id="btcrFreq" type="range" min="0" max="1" step="0.01" value="1" style="height: 20px; width: 200px;" onInput="btcrNormFreq = parseFloat(event.target.value);">
 	</div>
 
 </div>

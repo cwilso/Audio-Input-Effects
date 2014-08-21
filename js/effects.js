@@ -41,8 +41,10 @@ var audioInput = null,
     awDepth = null,
     awFilter = null,
     ngFollower = null,
-    ngGate = null;
-
+    ngGate = null,
+    bitCrusher = null,
+    btcrBits = 16,   // between 1 and 16
+    btcrNormFreq = 1; // between 0.0 and 1.0
 
 var rafID = null;
 var analyser1;
@@ -217,8 +219,31 @@ function initAudio() {
     document.getElementById("effect").onchange=changeEffect;
 }
 
+function keyPress(ev) {
+    var oldEffect = document.getElementById("effect").selectedIndex;
+    var newEffect = oldEffect;
+    switch (ev.keyCode) {
+      case 50: // 'r'
+        newEffect = 1;
+        break;
+      case 49: // 'c'
+        newEffect = 8;
+        break;
+      case 51: // 'p'
+        newEffect = 10;
+        break;
+      default:
+        console.log(ev.keyCode);
+    }
+    if (newEffect != oldEffect) {
+        document.getElementById("effect").selectedIndex = newEffect;
+        changeEffect();
+    }
+}
+
 window.addEventListener('load', initAudio );
 
+window.addEventListener('keydown', keyPress );
 
 function crossfade(value) {
   // equal-power crossfade
@@ -267,6 +292,7 @@ function changeEffect() {
     awFilter = null;
     ngFollower = null;
     ngGate = null;
+    bitCrusher = null;
 
     if (currentEffectNode) 
         currentEffectNode.disconnect();
@@ -355,6 +381,9 @@ function changeEffect() {
         case 19: // Vibrato
             currentEffectNode = createVibrato();
             break;
+        case 20: // BitCrusher
+            currentEffectNode = createBitCrusher();
+            break;
         default:
             break;
     }
@@ -367,16 +396,16 @@ function changeEffect() {
 function createTelephonizer() {
     // I double up the filters to get a 4th-order filter = faster fall-off
     var lpf1 = audioContext.createBiquadFilter();
-    lpf1.type = lpf1.LOWPASS;
+    lpf1.type = "lowpass";
     lpf1.frequency.value = 2000.0;
     var lpf2 = audioContext.createBiquadFilter();
-    lpf2.type = lpf2.LOWPASS;
+    lpf2.type = "lowpass";
     lpf2.frequency.value = 2000.0;
     var hpf1 = audioContext.createBiquadFilter();
-    hpf1.type = hpf1.HIGHPASS;
+    hpf1.type = "highpass";
     hpf1.frequency.value = 500.0;
     var hpf2 = audioContext.createBiquadFilter();
-    hpf2.type = hpf2.HIGHPASS;
+    hpf2.type = "highpass";
     hpf2.frequency.value = 500.0;
     lpf1.connect( lpf2 );
     lpf2.connect( hpf1 );
@@ -454,7 +483,7 @@ function createFilterLFO() {
     var gain = audioContext.createGain();
     var filter = audioContext.createBiquadFilter();
 
-    filter.type = filter.LOWPASS;
+    filter.type = "lowpass";
     filter.Q.value = parseFloat( document.getElementById("lplfoq").value );
     lplfofilter = filter;
 
@@ -739,7 +768,7 @@ function createPitchShifter() {
 function createEnvelopeFollower() {
     var waveshaper = audioContext.createWaveShaper();
     var lpf1 = audioContext.createBiquadFilter();
-    lpf1.type = lpf1.LOWPASS;
+    lpf1.type = "lowpass";
     lpf1.frequency.value = 10.0;
 
     var curve = new Float32Array(65536);
@@ -755,7 +784,7 @@ function createAutowah() {
     var inputNode = audioContext.createGain();
     var waveshaper = audioContext.createWaveShaper();
     awFollower = audioContext.createBiquadFilter();
-    awFollower.type = awFollower.LOWPASS;
+    awFollower.type = "lowpass";
     awFollower.frequency.value = 10.0;
 
     var curve = new Float32Array(65536);
@@ -769,7 +798,7 @@ function createAutowah() {
     awFollower.connect(awDepth);
 
     awFilter = audioContext.createBiquadFilter();
-    awFilter.type = awFilter.LOWPASS;
+    awFilter.type = "lowpass";
     awFilter.Q.value = 15;
     awFilter.frequency.value = 50;
     awDepth.connect(awFilter.frequency);
@@ -784,7 +813,7 @@ function createNoiseGate() {
     var inputNode = audioContext.createGain();
     var rectifier = audioContext.createWaveShaper();
     ngFollower = audioContext.createBiquadFilter();
-    ngFollower.type = ngFollower.LOWPASS;
+    ngFollower.type = "lowpass";
     ngFollower.frequency.value = 10.0;
 
     var curve = new Float32Array(65536);
@@ -825,6 +854,49 @@ function generateNoiseFloorCurve( floor ) {
 
     return curve;
 }
+
+function setBitCrusherDepth( bits ) {
+    var length = Math.pow(2, bits);
+    console.log("setting bitcrusher depth to " + bits + " bits, length = " + length );
+    var curve = new Float32Array( length );
+
+    var lengthMinusOne = length - 1;
+
+    for (var i=0; i<length; i++)
+        curve[i] = (2 * i / lengthMinusOne) - 1;
+
+    if (bitCrusher)
+        bitCrusher.curve = curve;
+}
+
+var btcrBufferSize = 4096;
+
+function createBitCrusher() {
+    var bitCrusher = audioContext.createScriptProcessor(btcrBufferSize, 1, 1);
+    var phaser = 0;
+    var last = 0;
+
+    bitCrusher.onaudioprocess = function(e) {
+        var step = Math.pow(1/2, btcrBits);
+        for (var channel=0; channel<e.inputBuffer.numberOfChannels; channel++) {
+            var input = e.inputBuffer.getChannelData(channel);
+            var output = e.outputBuffer.getChannelData(channel);
+            for (var i = 0; i < btcrBufferSize; i++) {
+                phaser += btcrNormFreq;
+                if (phaser >= 1.0) {
+                    phaser -= 1.0;
+                    last = step * Math.floor(input[i] / step + 0.5);
+                }
+                output[i] = last;
+            }
+        }
+    };
+    bitCrusher.connect( wetGain );
+    return bitCrusher;
+}
+
+btcrBits = 16,
+    btcrNormFreq
 
 function impulseResponse( duration, decay, reverse ) {
     var sampleRate = audioContext.sampleRate;
