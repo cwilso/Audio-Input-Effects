@@ -210,7 +210,7 @@ function initAudio() {
             console.log(e);
         });
 
-    if (typeof MediaStreamTrack === 'undefined'){
+    if ((typeof MediaStreamTrack === 'undefined')||(!MediaStreamTrack.getSources)){
         console.log("This browser does not support MediaStreamTrack, so doesn't support selecting sources.\n\nTry Chrome Canary.");
     } else {
         MediaStreamTrack.getSources(gotSources);
