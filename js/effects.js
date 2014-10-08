@@ -149,9 +149,16 @@ function changeInput(){
   }
   var audioSelect = document.getElementById("audioinput");
   var audioSource = audioSelect.value;
-  var constraints = {
-    audio: {
-      optional: [{sourceId: audioSource}]
+  var constraints = 
+  {
+    "audio": {
+        "mandatory": {
+            "googEchoCancellation": "false",
+            "googAutoGainControl": "false",
+            "googNoiseSuppression": "false",
+            "googHighpassFilter": "false"
+        },
+        "optional": [{sourceId: audioSource}]
     }
   };
   navigator.getUserMedia(constraints, gotStream, function(e) {
