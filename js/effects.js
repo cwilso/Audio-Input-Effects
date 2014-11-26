@@ -49,6 +49,12 @@ var audioInput = null,
 var rafID = null;
 var analyser1;
 var analyserView1;
+var constraints = 
+{
+  audio: {
+      optional: [{ echoCancellation: false }]
+  }
+};
 
 function convertToMono( input ) {
     var splitter = audioContext.createChannelSplitter(2);
@@ -149,18 +155,8 @@ function changeInput(){
   }
   var audioSelect = document.getElementById("audioinput");
   var audioSource = audioSelect.value;
-  var constraints = 
-  {
-    "audio": {
-        "mandatory": {
-            "googEchoCancellation": "false",
-            "googAutoGainControl": "false",
-            "googNoiseSuppression": "false",
-            "googHighpassFilter": "false"
-        },
-        "optional": [{sourceId: audioSource}]
-    }
-  };
+  constraints.audio.optional.push({sourceId: audioSource})
+
   navigator.getUserMedia(constraints, gotStream, function(e) {
             alert('Error getting audio');
             console.log(e);
@@ -212,7 +208,7 @@ function initAudio() {
     if (!navigator.getUserMedia)
         return(alert("Error: getUserMedia not supported!"));
 
-    navigator.getUserMedia({audio:true}, gotStream, function(e) {
+    navigator.getUserMedia(constraints, gotStream, function(e) {
             alert('Error getting audio');
             console.log(e);
         });
