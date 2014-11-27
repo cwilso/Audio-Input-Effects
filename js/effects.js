@@ -155,7 +155,7 @@ function changeInput(){
   }
   var audioSelect = document.getElementById("audioinput");
   var audioSource = audioSelect.value;
-  constraints.audio.optional.push({sourceId: audioSource})
+  constraints.audio.optional.push({sourceId: audioSource});
 
   navigator.getUserMedia(constraints, gotStream, function(e) {
             alert('Error getting audio');
