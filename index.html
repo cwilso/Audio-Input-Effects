@@ -9,6 +9,7 @@
 	<script src="js/jungle.js"></script>
 	<script src="js/effects.js"></script>
 	<script src="js/pingpong.js"></script>
+	<script src="js/apollo.js"></script>
 
 	<!-- Visualizer stuff -->
 	<script src="js/visualizer/events.js"></script>
@@ -39,6 +40,9 @@
 		<select id="audioinput" onchange="changeInput(this.selectedIndex);">
 			<option>default (selection not supported)</option>
 		</select>
+<!--
+		<button id="apollo">quindar beep</button>
+-->
 	</div>
 
 	<div id="arranger">
@@ -76,6 +80,7 @@
 		<option>Distorted Wah Chorus</option>
 		<option>Vibrato</option>
 		<option>BitCrusher</option>
+		<option>Apollo Quindar Tones</option>
 </select>
 &nbsp;&nbsp;Effect Mix: <input type="range" min="0.0" max="1.0" step="0.01" value="1.0" style="height: 20px; width: 200px;" 
 onInput="crossfade( event.target.value );">
@@ -183,6 +188,9 @@ onInput="crossfade( event.target.value );">
 	<div id="bitcrusherControls">Bitcrusher effect.<br>
 		Bit depth: <input id="bitdepth" type="range" min="1" max="16" step="0.25" value="8" style="height: 20px; width: 200px;" onInput="btcrBits = parseInt(event.target.value);"><br>
 		Frequency stepping: <input id="btcrFreq" type="range" min="0" max="1" step="0.01" value="1" style="height: 20px; width: 200px;" onInput="btcrNormFreq = parseFloat(event.target.value);">
+	</div>
+	<div id="apolloControls">Apollo Quindar tone effect.<br>
+		Noise floor: <input id="apolloFloor" type="range" min="0.0" max="0.2" step="0.001" value="0.01" style="height: 20px; width: 200px;" onInput="if (apolloGate)    apolloGate.curve = generateNoiseFloorCurve(event.target.value);">
 	</div>
 
 </div>

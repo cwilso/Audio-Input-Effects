@@ -387,6 +387,9 @@ function changeEffect() {
         case 20: // BitCrusher
             currentEffectNode = createBitCrusher();
             break;
+        case 21: // Apollo effect
+            currentEffectNode = createApolloEffect();
+            break;
         default:
             break;
     }
