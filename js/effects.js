@@ -493,7 +493,7 @@ function createFilterLFO() {
     filter.Q.value = parseFloat( document.getElementById("lplfoq").value );
     lplfofilter = filter;
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     osc.frequency.value = parseFloat( document.getElementById("lplfo").value );
     osc.connect( gain );
 
@@ -516,7 +516,7 @@ function createRingmod() {
     var ring = audioContext.createGain();
     var osc = audioContext.createOscillator();
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     rmod = osc;
     osc.frequency.value = Math.pow( 2, parseFloat( document.getElementById("rmfreq").value ) );
     osc.connect(ring.gain);
@@ -543,7 +543,7 @@ function createChorus() {
     gain.gain.value = parseFloat( document.getElementById("cdepth").value ); // depth of change to the delay:
     cdepth = gain;
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     osc.frequency.value = parseFloat( document.getElementById("cspeed").value );
     cspeed = osc;
 
@@ -573,7 +573,7 @@ function createVibrato() {
     gain.gain.value = parseFloat( document.getElementById("vdepth").value ); // depth of change to the delay:
     cdepth = gain;
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     osc.frequency.value = parseFloat( document.getElementById("vspeed").value );
     cspeed = osc;
 
@@ -601,7 +601,7 @@ function createFlange() {
     feedback.gain.value = parseFloat( document.getElementById("flfb").value );
     flfb = feedback;
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     osc.frequency.value = parseFloat( document.getElementById("flspeed").value );
     flspeed = osc;
 
@@ -643,7 +643,7 @@ function createStereoChorus() {
     scldepth.gain.value = parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
     scrdepth.gain.value = - parseFloat( document.getElementById("scdepth").value ); // depth of change to the delay:
 
-    osc.type = osc.TRIANGLE;
+    osc.type = 'triangle';
     osc.frequency.value = parseFloat( document.getElementById("scspeed").value );
     scspeed = osc;
 
@@ -694,7 +694,7 @@ function createModDelay() {
     chorusRateGainNode.gain.value = parseFloat( document.getElementById("mddepth").value ); // depth of change to the delay:
     mddepth = chorusRateGainNode;
 
-    osc.type = osc.SINE;
+    osc.type = 'sine';
     osc.frequency.value = parseFloat( document.getElementById("mdspeed").value );
     mdspeed = osc;
 
@@ -747,7 +747,7 @@ function createStereoFlange() {
     sflldepth.gain.value = parseFloat( document.getElementById("sfldepth").value ); // depth of change to the delay:
     sflrdepth.gain.value = - parseFloat( document.getElementById("sfldepth").value ); // depth of change to the delay:
 
-    sflspeed.type = sflspeed.TRIANGLE;
+    sflspeed.type = 'triangle';
     sflspeed.frequency.value = parseFloat( document.getElementById("sflspeed").value );
 
     sflspeed.connect( sflldepth );
