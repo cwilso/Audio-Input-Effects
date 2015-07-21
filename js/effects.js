@@ -86,7 +86,7 @@ var lpInputFilter=null;
 
 // this is ONLY because we have massive feedback without filtering out
 // the top end in live speaker scenarios.
-function createLPInputFilter(output) {
+function createLPInputFilter() {
     lpInputFilter = audioContext.createBiquadFilter();
     lpInputFilter.frequency.value = 2048;
     return lpInputFilter;
@@ -103,7 +103,7 @@ function toggleMono() {
         audioInput = convertToMono( realAudioInput );
     }
 
-    createLPInputFilter(audioInput);
+    createLPInputFilter();
     lpInputFilter.connect(dryGain);
     lpInputFilter.connect(analyser1);
     lpInputFilter.connect(effectInput);
