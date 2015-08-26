@@ -461,7 +461,7 @@ function createGainLFO() {
     var gain = audioContext.createGain();
     var depth = audioContext.createGain();
 
-    osc.type = parseInt(document.getElementById("lfotype").value);
+    osc.type = document.getElementById("lfotype").value;
     osc.frequency.value = parseFloat( document.getElementById("lfo").value );
 
     gain.gain.value = 1.0; // to offset
