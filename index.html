@@ -105,11 +105,11 @@ onInput="crossfade( event.target.value );">
 	<div id="gainLFOControls">This effect chops up the sound by using a low-frequency oscillator (LFO) to control the
 		gain.<br>
 		LFO type: 
-		<select id="lfotype" onchange="if (lfotype) lfotype.type = parseInt(event.target.value);">
-			<option selected="selected" value="0">SIN</option>
-			<option value="1">SQUARE</option>
-			<option value="2">SAWTOOTH</option>
-			<option value="3">TRIANGLE</option>
+		<select id="lfotype" onchange="if (lfotype) lfotype.type = event.target.value;">
+			<option selected="selected" value="sine">SINE</option>
+			<option value="square">SQUARE</option>
+			<option value="sawtooth">SAWTOOTH</option>
+			<option value="triangle">TRIANGLE</option>
 		</select><br>
 		LFO speed: <input id="lfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lfo) lfo.frequency.value = event.target.value;"><br>
 		LFO depth: <input id="lfodepth" type="range" min="0.0" max="1.0" step="0.1" value="1.0" style="height: 20px; width: 200px;" onInput="if (lfodepth) lfodepth.gain.value = event.target.value;">
@@ -155,11 +155,11 @@ onInput="crossfade( event.target.value );">
 	</div>
 	<div id="lfowahControls">An LFO-controlled low-pass filter.<br>
 		LFO type: 
-		<select id="lplfotype" onchange="if (lplfo) lplfo.type = parseInt(event.target.value);">
-			<option selected="selected" value="0">SIN</option>
-			<option value="1">SQUARE</option>
-			<option value="2">SAWTOOTH</option>
-			<option value="3">TRIANGLE</option>
+		<select id="lplfotype" onchange="if (lplfo) lplfo.type = event.target.value;">
+			<option selected="selected" value="sine">SINE</option>
+			<option value="square">SQUARE</option>
+			<option value="sawtooth">SAWTOOTH</option>
+			<option value="triangle">TRIANGLE</option>
 		</select><br>
 		LFO speed: <input id="lplfo" type="range" min="0.25" max="20" step="0.25" value="3" style="height: 20px; width: 200px;" onInput="if (lplfo) lplfo.frequency.value = event.target.value;"><br>
 		LFO depth: <input id="lplfodepth" type="range" min="0.0" max="1.0" step="0.1" value="1.0" style="height: 20px; width: 200px;" onInput="if (lplfodepth) lplfodepth.gain.value = 2500 * event.target.value;">
