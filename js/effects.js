@@ -170,7 +170,7 @@ function gotSources(sourceInfos) {
 
     for (var i = 0; i != sourceInfos.length; ++i) {
         var sourceInfo = sourceInfos[i];
-        if (sourceInfo.kind === 'audio') {
+        if (sourceInfo.kind === 'audioinput') {
             var option = document.createElement("option");
             option.value = sourceInfo.id;
             option.text = sourceInfo.label || 'input ' + (audioSelect.length + 1);
@@ -213,10 +213,10 @@ function initAudio() {
             console.log(e);
         });
 
-    if ((typeof MediaStreamTrack === 'undefined')||(!MediaStreamTrack.getSources)){
-        console.log("This browser does not support MediaStreamTrack, so doesn't support selecting sources.\n\nTry Chrome Canary.");
+    if (!navigator.mediaDevices) {
+        console.log("This browser does not support mediaDevices, so doesn't support selecting sources.");
     } else {
-        MediaStreamTrack.getSources(gotSources);
+        navigator.mediaDevices.enumerateDevices().then(gotSources);
     }
 
     document.getElementById("effect").onchange=changeEffect;
