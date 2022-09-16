@@ -2,8 +2,6 @@
 <html>
 <head>
 	<title>Live input effects</title>
-    <ascript src="http://cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></ascript>
-
 	<script src="js/effect.js"></script>
 	<script src="js/waveshaper.js"></script>
 	<script src="js/jungle.js"></script>
@@ -33,9 +31,13 @@
 	#controls { padding-top: 24px;}
 	#effectMix { padding-top: 12px;}
 	#arranger { width:750px; margin: 25px auto}
+	#autoplay { width: 100%; height: 100%; }
 	</style>
 </head>
 <body>
+	<div id="autoplay">
+		<button onclick="audioContext.resume(); changeInput(); document.getElementById('autoplay').style='display:none';">Start Processing</button>
+	</div>
 	<div>Input:
 		<select id="audioinput" onchange="changeInput(this.selectedIndex);">
 			<option>default (selection not supported)</option>
@@ -199,19 +201,5 @@ onInput="crossfade( event.target.value );">
   -->
 </div>
   <a href="https://github.com/cwilso/Audio-Input-Effects" style="position: absolute; z-index:2; top: 0; right: 0; border: 0;"><img src="img/forkme.png" alt="Fork me on GitHub"></a>
-
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-35593052-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
 </body>
 </html>
